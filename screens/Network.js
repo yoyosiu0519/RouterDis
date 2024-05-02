@@ -16,8 +16,10 @@ import {
   NetworkButtonContainer,
   NetworkButton,
   NetworkButtonText,
+  ButtonText,
   ScreenHeadtitle,
   LogoContainer,
+  FollowButton
 
 } from "./../components/Styles";
 
@@ -110,7 +112,7 @@ const Network = () => {
           <ScrollView>
             <LogoContainer>
               <Pressable onPress={() => navigation.goBack()}>
-                <AntDesign name="left" size={24} color="black" />
+                <AntDesign name="left" size={24} color={Colors.navy} />
               </Pressable>
               <ScreenHeadtitle>Network</ScreenHeadtitle>
             </LogoContainer>
@@ -119,7 +121,7 @@ const Network = () => {
                 onPress={() => handleSelectedButton("people")}
                 style={
                   selectedButton === "people" ? {
-                    backgroundColor: Colors.darkPurple
+                    backgroundColor: Colors.navy
                   } : null}>
                 <NetworkButtonText
                   style={
@@ -134,7 +136,7 @@ const Network = () => {
                 onPress={() => handleSelectedButton("follow")}
                 style={
                   selectedButton === "follow" ? {
-                    backgroundColor: Colors.darkPurple
+                    backgroundColor: Colors.navy
                   } : null}>
                 <NetworkButtonText
                   style={
@@ -142,7 +144,7 @@ const Network = () => {
                       color: Colors.white
                     } : null}
                 >
-                  Follow
+                  Following
                 </NetworkButtonText>
               </NetworkButton>
               <NetworkButton
@@ -151,7 +153,7 @@ const Network = () => {
                 }}
                 style={
                   selectedButton === "follower" ? {
-                    backgroundColor: Colors.darkPurple
+                    backgroundColor: Colors.navy
                   } : null}>
                 <NetworkButtonText
                   style={
@@ -175,9 +177,9 @@ const Network = () => {
                           <Text>{item.firstname} {item.surname}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Pressable onPress={() => handleFollow(userID, item._id)} style={{ marginLeft: 10, backgroundColor: 'black', padding: 10 }}>
-                            <Text style={{ color: 'white' }}>Follow</Text>
-                          </Pressable>
+                          <FollowButton onPress={() => handleFollow(userID, item._id)}>
+                            <ButtonText>Follow</ButtonText>
+                          </FollowButton>
                         </View>
                       </View>
                     </View>
@@ -198,9 +200,9 @@ const Network = () => {
                         <Text>{item.firstname} {item.surname}</Text>
                         </View>
                         <View style={{ flex: 1 }}>
-                          <Pressable onPress={() => handleUnfollow(userID, item._id)} style={{ marginLeft: 10, backgroundColor: 'black', padding: 10 }}>
-                            <Text style={{ color: 'white' }}>Unfollow</Text>
-                          </Pressable>
+                          <FollowButton onPress={() => handleUnfollow(userID, item._id)}>
+                            <ButtonText>Unfollow</ButtonText>
+                          </FollowButton>
                         </View>
                       </View>
                     </View>
