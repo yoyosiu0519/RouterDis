@@ -76,28 +76,7 @@ const Home = () => {
           return () => { };
         }, [])
       );
-    useFocusEffect(
-        useCallback(() => {
-          const fetchSavedPosts = async () => {
-            try {
-              const response = await axios.get(`http://${API_URL}/users/${userID}/savedPosts`);
-              console.log('response.data:', response.data);
-              const savedPosts = response.data.savedPosts.reduce((acc, post) => ({ ...acc, [post._id]: true }), {});
-              setSavedPosts(savedPosts);
-            } catch (error) {
-              console.error('Failed to fetch saved posts:', error);
-            }
-          };
-      
-          if (userID) {
-            fetchSavedPosts();
-          }
-      
-          // Return a cleanup function that does nothing. This is necessary because
-          // useFocusEffect requires the callback to return a cleanup function.
-          return () => {};
-        }, [userID])
-      );
+
 
     // Filter the posts based on the search term when rendering them
     const filteredPosts = posts.filter(post => post.destination.toLowerCase().includes(searchTerm.toLowerCase()));
