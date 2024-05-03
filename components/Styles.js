@@ -359,4 +359,11 @@ export const PostLocationContainer = styled.View`
     elevation: 5;
 `}
       `
+export const MessageText = styled.Text`
+    font-size: 18px;
+    font-weight: bold;
+    color: ${navy};
+    text-align: center;
+    padding: 50px;
+    `
 

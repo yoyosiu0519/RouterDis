@@ -17,7 +17,7 @@ import {
     Subtitle,
     PostContainer,
     PostTitle,
-    LogoContainer,
+    MessageText,
     PostTime,
     PostDestination,
     PostLocationContainer,
@@ -65,7 +65,7 @@ const Save = () => {
       setActiveSections([]);
   
       return () => { };
-    }, [])
+    }, [userID, savedPosts])
   );
 useFocusEffect(
     useCallback(() => {
@@ -126,13 +126,14 @@ useFocusEffect(
               <View>
   <Subtitle>You currently have no saved posts</Subtitle>
   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  <FontAwesome6 name="face-sad-cry" size={60} color="black" />
+  <FontAwesome6 name="face-sad-cry" size={80} color="black" />
 </View>
+<MessageText>Start saving posts for your next trip! </MessageText>
   
   </View>
 ) : (
   <PostContainer>
-    <PostTitle>Recent Posts</PostTitle>
+    <PostTitle>Your Saved Posts</PostTitle>
     {posts.map((post, index) => (
       <Post
         key={index}

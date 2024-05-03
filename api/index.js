@@ -384,9 +384,7 @@ app.get("/users/:userID/savedPosts", async (req, res) => {
     try {
         const userID = req.params.userID;
         const posts = await Post.find({ "saved.user": userID });
-        if (!posts.length) {
-            return res.status(404).json({ message: "No saved posts found for this user" });
-        }
+
         res.status(200).json({ savedPosts: posts });
     } catch (error) {
         console.error(error);
