@@ -170,8 +170,6 @@ app.post("/login", async (req, res) => {
 })
 
 
-
-
 //endpoint to get all users without the logged in user
 app.get("/user/:userID", async (req, res) => {
     try {
@@ -255,57 +253,6 @@ app.post("/newPost", async (req, res) => {
     }
 });
 
-//endpoint to like a post
-app.post("/post/:postID/:userID/like", async (req, res) => {
-
-    const postID = req.params.postID;
-    const userID = req.params.userID;
-
-    try {
-
-        const post = await Post.findById(postID).populate("user", "firstname", "surname");
-        const updatedPost = await Post.findByIdAndUpdate(postID, {
-            $addToSet: { likes: userID }
-        }, { new: true })
-
-        if (!updatedPost) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        updatedPost.user = post.user;
-        res.json(updatedPost);
-    } catch (error) {
-        res.status(500).json({
-            message: "Unable to like post"
-        });
-    }
-});
-
-//endpoint to unlike a post
-
-app.post("/post/:postID/:userID/unlike", async (req, res) => {
-
-    const postID = req.params.postID;
-    const userID = req.params.userID;
-
-    try {
-        const post = await Post.findById(postID).populate("user", "firstname", "surname");
-        const updatedPost = await Post.findByIdAndUpdate(postID, {
-            $pull: { likes: userID }
-        }, { new: true })
-
-        if (!updatedPost) {
-            return res.status(404).json({ message: "Post not found" });
-        }
-
-        updatedPost.user = post.user;
-        res.json(updatedPost);
-    } catch (error) {
-        res.status(500).json({
-            message: "Unable to like post"
-        });
-    }
-});
 
 //endpoint to get all posts
 
@@ -415,5 +362,3 @@ app.get("/profile/:userID", async (req, res) => {
         res.status(500).json({ message: "Error while getting the profile" });
     }
 });
-
-//endpoint to get all post uploaded by current logged in user

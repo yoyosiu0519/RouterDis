@@ -7,7 +7,7 @@ import { API_URL_ANDROID, API_URL_IOS } from '../config';
 import { jwtDecode } from 'jwt-decode';
 import 'core-js/stable/atob';
 import axios from 'axios';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import Post from '../components/RenderPost';
 
@@ -31,7 +31,6 @@ import {
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 
 const Save = () => {
-  const navigation = useNavigation();
   const { userID, setUserID } = useContext(UserType);
   const [savedPosts, setSavedPosts] = useState({});
   const [posts, setPosts] = useState([]);
