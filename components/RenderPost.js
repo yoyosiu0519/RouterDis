@@ -13,16 +13,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import {
     Colors,
-    StyledContainer,
-    SearchContainer,
-    IconContainer,
-    StyledInputText,
-    HomeAppName,
-    IconPressable,
-    LogoContainer,
     LocationTextRow,
-    PostContainer,
-    PostTitle,
     PostUser,
     PostTime,
     PostDestination,
@@ -31,7 +22,6 @@ import {
     PostLocation,
     LocationTitle,
     LocationDetails,
-    DeleteLocationText
 
 } from "./../components/Styles";
 

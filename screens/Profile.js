@@ -35,7 +35,7 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const response = await axios.get(`http://${API_URL}/profile/${userID}`);
-        setUser(response.data);
+        setUser(response.data.user); // Access the nested user object
       } catch (error) {
         console.error('Failed to fetch user:', error);
       }
@@ -49,19 +49,25 @@ const Profile = () => {
   useEffect(() => {
     console.log('User:', user);
   }
-  , [user]);
+    , [user]);
   return (
     <StyledContainer>
       <InnerContainer>
-      <SafeAreaView>
-        <ScrollView>
-          <StyledButton > 
-            <ButtonText>
-              Logout
-            </ButtonText>
-          </StyledButton>
+        <SafeAreaView>
+          <ScrollView>
+            {user && (
+              <View>
+                <Text>{user.firstname} {user.surname}</Text>
+              </View>
+            )}
+
+            <StyledButton >
+              <ButtonText>
+                Logout
+              </ButtonText>
+            </StyledButton>
           </ScrollView>
-      </SafeAreaView>
+        </SafeAreaView>
       </InnerContainer>
     </StyledContainer>
   )
