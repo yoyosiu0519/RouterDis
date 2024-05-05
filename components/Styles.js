@@ -110,8 +110,26 @@ export const StyledButton = styled.Pressable`
     width: 200px;
     height: 60px;
     `
+export const SmallButton = styled.Pressable`
+    padding: 15px;
+    marginBottom: 10px;
+    marginTop: 40px;
+    backgroundColor: ${white};
+    borderRadius: 8px;
+    borderWidth: 3px;
+    borderColor: ${sage};
+    marginvertical: 5px;
+    width: 160px;
+    height: 60px;
+    `
 export const ButtonText = styled.Text`
     color: ${white};
+    font-size: 15.5px;
+    font-weight: bold;
+    text-align: center;
+    `
+    export const ColorButtonText = styled.Text`
+    color: ${sage};
     font-size: 15.5px;
     font-weight: bold;
     text-align: center;
@@ -121,7 +139,6 @@ export const PressableText = styled.Text`
     font-size: 15px;
     font-weight: 500;
     text-align: center;
-
     `
 export const SearchContainer = styled.View`
     flexDirection: row;
@@ -160,7 +177,7 @@ export const IconPressable = styled.Pressable`
     `
 export const NetworkButtonContainer = styled.View`
     flexDirection: row;
-    alignItems: center;
+    justifyContent: center;
     gap: 5px;
     `
 export const NetworkButton = styled.Pressable`
