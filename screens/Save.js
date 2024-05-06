@@ -12,21 +12,12 @@ import { UserType } from '../UserContext';
 import Post from '../components/RenderPost';
 
 import {
-    Colors,
+    
     StyledContainer,
     Subtitle,
     PostContainer,
     PostTitle,
     MessageText,
-    PostTime,
-    PostDestination,
-    PostLocationContainer,
-    PostDay,
-    PostLocation,
-    LocationTitle,
-    LocationDetails,
-    DeleteLocationText
-
 } from "./../components/Styles";
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 
@@ -133,7 +124,7 @@ useFocusEffect(
 ) : (
   <PostContainer>
     <PostTitle>Your Saved Posts</PostTitle>
-    {posts.map((post, index) => (
+    {userID && posts.map((post, index) => (
       <Post
         key={index}
         post={post}

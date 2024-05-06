@@ -188,6 +188,79 @@ app.get("/user/:userID", async (req, res) => {
 }
 );
 
+//endpoint to update user profile
+app.put("/user/:userID", async (req, res) => {
+    try {
+      const { userID } = req.params;
+      const { firstname, surname, email, userBio } = req.body;
+  
+      const user = await User.findById(userID);
+  
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+  
+      if (firstname) {
+        user.firstname = firstname;
+      }
+  
+      if (surname) {
+        user.surname = surname;
+      }
+  
+      if (email) {
+        const emailExists = await User.findOne({ email });
+  
+        if (emailExists && emailExists._id.toString() !== userID) {
+          return res.status(409).json({ message: "Email already in use" });
+        }
+  
+        user.email = email;
+      }
+
+      if (userBio) {
+        user.userBio = userBio;
+      }
+  
+      await user.save();
+  
+      res.status(200).json({ message: "User updated successfully", user });
+    } catch (error) {
+      console.error(`An error occurred: ${error}`);
+      res.status(500).json({ message: "An error occurred while updating the user" });
+    }
+  });
+
+//endpoint to update user password
+app.put("/user/:userID/password", async (req, res) => {
+    try {
+        const { userID } = req.params;
+        const { oldPassword, newPassword } = req.body;
+
+        const user = await User.findById(userID);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const passwordMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ message: "Old password does not match" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+
+        await user.save();
+
+        res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+        console.error(`An error occurred: ${error}`);
+        res.status(500).json({ message: "An error occurred while updating the password" });
+    }
+});
+
 //endpoint to follow a user
 app.post("/follow", async (req, res) => {
     const { loggedInUserID, followUserID } = req.body;
@@ -233,7 +306,6 @@ app.post("/users/unfollow", async (req, res) => {
 }
 );
 
-
 //endpoint to create a new post
 app.post("/newPost", async (req, res) => {
     const { destination, locations, userID } = req.body;
@@ -252,7 +324,6 @@ app.post("/newPost", async (req, res) => {
         });
     }
 });
-
 
 //endpoint to get all posts
 
@@ -362,3 +433,33 @@ app.get("/profile/:userID", async (req, res) => {
         res.status(500).json({ message: "Error while getting the profile" });
     }
 });
+
+// endpoint to delete a post
+
+app.delete("/posts/:postID/:userID/delete", async (req, res) => {
+    try {
+      const { postID, userID } = req.params;
+  
+      console.log(`postID: ${postID}`);
+      console.log(`userID: ${userID}`);
+  
+      const post = await Post.findOne({ _id: postID });
+  
+      console.log(`Found post: ${JSON.stringify(post)}`);
+  
+      if (!post) {
+        return res.status(404).json({ message: "Post not found" });
+      }
+  
+      if (post.user.toString() !== userID) {
+        return res.status(403).json({ message: "You do not have permission to delete this post" });
+      }
+  
+      await Post.deleteOne({ _id: postID });
+  
+      res.status(200).json({ message: "Post deleted successfully" });
+    } catch (error) {
+      console.error(`An error occurred: ${error}`);
+      res.status(500).json({ message: "An error occurred while deleting the post" });
+    }
+  });

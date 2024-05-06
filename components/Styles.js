@@ -14,12 +14,13 @@ export const Colors = {
     navy: "#3A5E7A",
     darkSage: "#1F281E",
     lightSage: "#CBD2C5",
-    lightBlue: "#8198B1",
+    lightBlue: "#517e8f",
+    lightGrey: "#5f6360",
 
 };
 
 const { black, white, cream, lightBlue, 
-   red, sage, navy, darkSage, lightSage } = Colors;
+   red, sage, navy, darkSage, lightSage, lightGrey } = Colors;
 export const StyledContainer = styled.View`
     flex: 1;
     padding: 25px;
@@ -67,6 +68,7 @@ export const ScreenHeadtitle = styled.Text`
     color: ${black};
     text-align: center;
     `
+    
 export const Subtitle = styled.Text`
     font-size: 20px;
     margin-bottom: 14px;
@@ -101,8 +103,8 @@ export const StyledInputText = styled.TextInput`
     `
 export const StyledButton = styled.Pressable`
     padding: 20px;
+    marginTop: 20px;
     marginBottom: 10px;
-    marginTop: 40px;
     backgroundColor: ${navy};
     alignSelf: center;
     borderRadius: 8px;
@@ -251,6 +253,7 @@ export const DestinationText = styled.Text`
     fontSize: 15px;
     textAlign: right;
     paddingLeft: 10px;
+    width: 100px;
   `;
 export const LocationContainer = styled.View`
     flexDirection: column;
@@ -271,12 +274,21 @@ export const LocationContainer = styled.View`
     elevation: 5;
 `}
   `;
-export const LocationTextRow = styled.View`
+export const TextRow = styled.View`
     flexDirection: row;
     alignItems: center;
     justifyContent: space-between;
     marginLeft: 10px;
     marginTop: 5px;
+
+    `
+export const WhiteInputField = styled.TextInput`
+    color: ${lightGrey};
+    backgroundColor: ${white};
+    borderRadius: 15px;
+    fontSize: 15px;
+    width: 65%;
+    padding: 10px;
     `
 export const DeleteLocationText = styled.Text`
     color: ${red};

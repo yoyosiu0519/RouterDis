@@ -23,7 +23,7 @@ import {
   DestinationText,
   LocationContainer,
   PressableText,
-  LocationTextRow,
+  TextRow,
   DeleteLocationText,
   ScreenHeadtitle,
   LogoContainer,
@@ -92,7 +92,7 @@ const Post = ({ navigation }) => {
 
               {locations.map((location, index) => (
                 <LocationContainer key={index}>
-                  <LocationTextRow>
+                  <TextRow>
                     <FontAwesome name="calendar" size={24} color={Colors.sage} />
                     <DestinationText>Day: * </DestinationText>
                     <DestinationTextInput
@@ -100,8 +100,8 @@ const Post = ({ navigation }) => {
                       value={location.day}
                       onChangeText={(value) => handleLocationChange(index, 'day', value)}
                     />
-                  </LocationTextRow>
-                  <LocationTextRow>
+                  </TextRow>
+                  <TextRow>
                     <MaterialIcons name="location-pin" size={24} color={Colors.sage} />
                     <DestinationText>Location: * </DestinationText>
                     <DestinationTextInput
@@ -109,8 +109,8 @@ const Post = ({ navigation }) => {
                       value={location.name}
                       onChangeText={(value) => handleLocationChange(index, 'name', value)}
                     />
-                  </LocationTextRow>
-                  <LocationTextRow>
+                  </TextRow>
+                  <TextRow>
                     <MaterialCommunityIcons name="airplane-takeoff" size={24} color={Colors.sage} />
                     <DestinationText>From: * </DestinationText>
                     <DestinationTextInput
@@ -118,8 +118,8 @@ const Post = ({ navigation }) => {
                       value={location.from}
                       onChangeText={(value) => handleLocationChange(index, 'from', value)}
                     />
-                  </LocationTextRow>
-                  <LocationTextRow>
+                  </TextRow>
+                  <TextRow>
                     <MaterialCommunityIcons name="airplane-landing" size={24} color={Colors.sage} />
                     <DestinationText>To: * </DestinationText>
                     <DestinationTextInput
@@ -127,8 +127,8 @@ const Post = ({ navigation }) => {
                       value={location.to}
                       onChangeText={(value) => handleLocationChange(index, 'to', value)}
                     />
-                  </LocationTextRow>
-                  <LocationTextRow >
+                  </TextRow>
+                  <TextRow >
                     <Entypo name="text" size={24} color={Colors.sage} style={{ alignSelf: 'flex-start' }} />
                     <DestinationText style={{ alignSelf: 'flex-start' }}>Description: </DestinationText>
                     <DestinationTextInput
@@ -140,8 +140,8 @@ const Post = ({ navigation }) => {
                       style={{ alignSelf: 'flex-start', textAlignVertical: 'top' }}
 
                     />
-                  </LocationTextRow>
-                  <LocationTextRow>
+                  </TextRow>
+                  <TextRow>
                     <MaterialCommunityIcons name="train-car" size={24} color={Colors.sage} />
                     <DestinationText>Transport: </DestinationText>
                     <DestinationTextInput
@@ -149,8 +149,8 @@ const Post = ({ navigation }) => {
                       value={location.transport}
                       onChangeText={(value) => handleLocationChange(index, 'transport', value)}
                     />
-                  </LocationTextRow>
-                  <LocationTextRow>
+                  </TextRow>
+                  <TextRow>
                     <Ionicons name="time-outline" size={24} color={Colors.sage} />
                     <DestinationText>Duration: </DestinationText>
                     <DestinationTextInput
@@ -158,7 +158,7 @@ const Post = ({ navigation }) => {
                       value={location.duration}
                       onChangeText={(value) => handleLocationChange(index, 'duration', value)}
                     />
-                  </LocationTextRow>
+                  </TextRow>
 
                   <Pressable onPress={() => handleDeleteLocation(index)}>
                     <DeleteLocationText>Delete Location</DeleteLocationText>

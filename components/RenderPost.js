@@ -13,7 +13,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import {
     Colors,
-    LocationTextRow,
+    TextRow,
     PostUser,
     PostTime,
     PostDestination,
@@ -22,10 +22,12 @@ import {
     PostLocation,
     LocationTitle,
     LocationDetails,
+    StyledButton,
+    ButtonText
 
 } from "./../components/Styles";
 
-const RenderPost = ({ post, savedPosts, savePost, userID }) => {
+const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, deletePost }) => {
     const [activeSections, setActiveSections] = useState([]);
 
     const toggleSection = () => {
@@ -61,7 +63,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID }) => {
                             return (
                                 <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 }}>
                                     <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                    <Entypo name="location-pin" size={54} color={Colors.sage} /> 
+                                        <Entypo name="location-pin" size={54} color={Colors.sage} />
                                         <Entypo name="dot-single" size={24} color="black" />
 
                                     </View>
@@ -72,12 +74,12 @@ const RenderPost = ({ post, savedPosts, savePost, userID }) => {
                                         <LocationTitle style={{ marginBottom: 5 }}>To: <LocationDetails>{location.to}</LocationDetails></LocationTitle>
                                         {location.description &&
                                             <>
-                                                <LocationTextRow>
+                                                <TextRow>
                                                     <LocationTitle>Description:</LocationTitle>
-                                                </LocationTextRow>
-                                                <LocationTextRow style={{ marginLeft: 15, marginBottom: 5 }}>
+                                                </TextRow>
+                                                <TextRow style={{ marginLeft: 15, marginBottom: 5 }}>
                                                     <LocationDetails >{location.description}</LocationDetails>
-                                                </LocationTextRow>
+                                                </TextRow>
                                             </>
                                         }
                                         {location.transport &&
@@ -96,8 +98,9 @@ const RenderPost = ({ post, savedPosts, savePost, userID }) => {
         );
     };
 
-    return (
-        <PostLocationContainer>
+return (
+    <PostLocationContainer>
+        {post && (
             <Accordion
                 activeSections={activeSections}
                 sections={[post]}
@@ -106,38 +109,44 @@ const RenderPost = ({ post, savedPosts, savePost, userID }) => {
 
                 renderHeader={post => (
                     <View>
-                      <LocationTextRow>
-                      <PostDestination>{post.destination}</PostDestination>
+                        <TextRow>
+                            <PostDestination>{post.destination}</PostDestination>
                             {activeSections.includes(0) ? (
                                 <Ionicons name="caret-up" size={24} color={Colors.navy} />
                             ) : (
                                 <Ionicons name="caret-down" size={24} color={Colors.navy} />
                             )}
-                      </LocationTextRow>
-                      <LocationTextRow>
-                        <PostUser>{post.user.firstname} {post.user.surname}</PostUser>
-                        <PostTime>{getHoursSince(post.createdAt)} hours ago</PostTime>
-                      </LocationTextRow>
+                        </TextRow>
+                        <TextRow>
+                            <PostUser>{post.user.firstname} {post.user.surname}</PostUser>
+                            <PostTime>{getHoursSince(post.createdAt)} hours ago</PostTime>
+                        </TextRow>
                     </View>
-                  )}
-                  
-                  renderContent={post => (
+                )}
+
+                renderContent={post => (
                     <Pressable activeOpacity={1} onPress={toggleSection}>
-                      {renderLocations(post.locations)}
-                  
-                      {post.user._id !== userID && (
-                        <Ionicons
-                          name={savedPosts[post._id] ? "bookmark" : "bookmark-outline"}
-                          size={24}
-                          color={Colors.red}
-                          onPress={() => savePost(post._id, userID)}
-                        />
-                      )}
+                        {renderLocations(post.locations)}
+
+                        {post.user._id !== userID && (
+                            <Ionicons
+                                name={savedPosts[post._id] ? "bookmark" : "bookmark-outline"}
+                                size={24}
+                                color={Colors.red}
+                                onPress={() => savePost(post._id, userID)}
+                            />
+                        )}
+                        {showDeleteButton && (
+                            <StyledButton onPress={() => deletePost(post._id)}>
+                                <ButtonText>Delete Post</ButtonText>
+                            </StyledButton>
+                        )}
                     </Pressable>
-                  )}
+                )}
             />
-        </PostLocationContainer>
-    );
+        )}
+    </PostLocationContainer>
+);
 };
 
 export default RenderPost;
