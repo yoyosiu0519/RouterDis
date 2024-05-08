@@ -13,12 +13,10 @@ import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import Post from '../components/RenderPost';
+import SearchBar from '../components/SearchBar';
 import {
   Colors,
   StyledContainer,
-  SearchContainer,
-  IconContainer,
-  StyledInputText,
   HomeAppName,
   IconPressable,
   LogoContainer,
@@ -38,7 +36,6 @@ const Home = () => {
   const [savedPosts, setSavedPosts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
-
   useFocusEffect(
     useCallback(() => {
       // Fetch and decode user ID
@@ -54,10 +51,10 @@ const Home = () => {
       const fetchPosts = async () => {
         try {
           const response = await axios.get(`http://${API_URL}/posts`);
-          setPosts(response.data);
-          console.log(response.data);
+          const posts = response.data;
+          setPosts(posts);
         } catch (error) {
-          console.log(error);
+          console.log('Home screen: ', error);
         }
       };
       fetchPosts();
@@ -89,13 +86,12 @@ const Home = () => {
   );
 
   // Filter the posts based on the search term when rendering them
-  const filteredPosts = posts.filter(post => post.destination.toLowerCase().includes(searchTerm.toLowerCase()));
-
+  const filteredPosts = posts.filter(post => post.destination && post.destination.toLowerCase().includes(searchTerm.toLowerCase()));
+  
   const savePost = async (postID, userID) => {
     try {
       const response = await axios.put(`http://${API_URL}/posts/${postID}/${userID}/save`);
       console.log('savePost response:', response.data);
-      // Update the savedPosts state
       setSavedPosts(prevState => ({
         ...prevState,
         [postID]: response.data.saved.findIndex(user => user.user.toString() === userID) !== -1,
@@ -105,30 +101,23 @@ const Home = () => {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
+        console.log('Home screen: ', error.response.data);
+        console.log('Home screen: ', error.response.status);
+        console.log('Home screen: ', error.response.headers);
       } else if (error.request) {
-        // The request was made but no response was received
-        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-        // http.ClientRequest in node.js
-        console.log(error.request);
+        console.log('Home screen: ', error.request);
       } else {
-        // Something happened in setting up the request that triggered an Error
         console.log('Error', error.message);
       }
-      console.log(error.config);
+      console.log('Home screen: ', error.config);
     }
   };
+
 
   const toggleSection = index => {
     setActiveSections(activeSections.includes(index) ? activeSections.filter(i => i !== index) : [...activeSections, index]);
   };
 
-
-  useEffect(() => {
-    console.log('savedPosts:', savedPosts);
-  }, [savedPosts]);
 
   return (
 
@@ -143,24 +132,14 @@ const Home = () => {
                 <Ionicons name="person-add" size={24} color={Colors.navy} />
               </IconPressable>
             </LogoContainer>
-            <SearchContainer>
-              <IconContainer>
-                <Ionicons name="search" size={24} color={Colors.gold} />
-              </IconContainer>
-              <StyledInputText
-                placeholder="Search Destination"
-                onChangeText={text => setSearchTerm(text)}
-                value={searchTerm}
-              />
-            </SearchContainer>
+            <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             {filteredPosts.length === 0 && <DeleteLocationText style={{ margin: 20 }}>No posts found</DeleteLocationText>}
             <ScrollView>
-              {/* ... */}
               {userID && posts && (
                 <View style={{ margin: 5 }}>
                   <PostContainer>
                     {searchTerm === '' && <PostTitle>Recent Posts</PostTitle>}
-                    { filteredPosts.map((post, index) => (
+                    {filteredPosts.map((post, index) => (
                       <Post
                         key={index}
                         post={post}
@@ -174,7 +153,6 @@ const Home = () => {
                   </PostContainer>
                 </View>
               )}
-              {/* ... */}
             </ScrollView>
 
           </ScrollView>

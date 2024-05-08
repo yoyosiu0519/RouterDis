@@ -32,23 +32,20 @@ app.listen(port, () => {
 const User = require('./models/user'); // Import user model
 const Post = require('./models/post'); // Import post model
 
-//endpoints for user resgisteration
+//Endpoints for user resgisteration
 
 app.post("/register", async (req, res) => {
     try {
         const { firstname, surname, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, saltRounds); // Hash the password
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-        //check if email is already in use
+        //Check if email is already in use
         const emailExists = await User.findOne({ email });
         if (emailExists) {
             console.log("Email already in use");
             return res.status(409).json({ message: "Email already in use" });
         }
-
-        //create a new user
+        //Create a new user
         const newUser = new User({
             firstname,
             surname,
@@ -56,14 +53,13 @@ app.post("/register", async (req, res) => {
             password: hashedPassword
         });
 
-        //generate the verification token & set the expiration time
+        //Generate the verification token & set the expiration time
         newUser.verificationToken = crypto.randomBytes(20).toString("hex");
         newUser.verificationTokenExpires = Date.now() + 1200000; // 20 minutes
 
-        //save new user to the database
         await newUser.save();
 
-        //send the verification email
+        //Send the verification email
         sendVerificationEmail(newUser.email, newUser.verificationToken);
         res.status(202).json({
             message: "User registered successfully, please check your email for the verification link to activate your account"
@@ -78,6 +74,7 @@ app.post("/register", async (req, res) => {
     }
 });
 
+// Verification email
 const sendVerificationEmail = async (email, verificationToken) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
@@ -87,7 +84,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
         }
     });
 
-    //Verification email message
+    //Email message
     const mailOptions = {
         from: "router@gmail.com",
         to: email,
@@ -103,8 +100,7 @@ const sendVerificationEmail = async (email, verificationToken) => {
     }
 };
 
-//endpoint to verify email
-
+//Endpoint to verify email
 app.get('/verify/:token', async (req, res) => {
     try {
         const token = req.params.token;
@@ -116,8 +112,8 @@ app.get('/verify/:token', async (req, res) => {
             await User.deleteOne({ _id: user._id });
             return res.status(400).json({ message: "Token expired, please register again" });
         }
-        //make the user as verified
-        user.verified = true;
+        
+        user.verified = true; //mark the user as verified
         user.verificationToken = undefined; //remove the verification token
         user.verificationTokenExpires = undefined; //remove the verification token expiration time
         await user.save();
@@ -127,26 +123,23 @@ app.get('/verify/:token', async (req, res) => {
     }
 })
 
-//endpoint for login
-
+//Token
 const generateSecretKey = () => {
     const secretKey = crypto.randomBytes(32).toString("hex");
     return secretKey;
 }
-
 const secretKey = generateSecretKey();
 
+//Endpoint for login
 app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        //check if user exists already
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email });//Check if user exists already
 
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
-        // Check if the user is verified
+        
         if (!user.verified) {
             return res.status(401).json({ message: 'User not verified' });
         }
@@ -170,7 +163,7 @@ app.post("/login", async (req, res) => {
 })
 
 
-//endpoint to get all users without the logged in user
+//Endpoint to get all users without the logged in user
 app.get("/user/:userID", async (req, res) => {
     try {
         const loggedInUserID = req.params.userID;
@@ -326,7 +319,6 @@ app.post("/newPost", async (req, res) => {
 });
 
 //endpoint to get all posts
-
 app.get("/posts", async (req, res) => {
     try {
 
@@ -463,3 +455,93 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
       res.status(500).json({ message: "An error occurred while deleting the post" });
     }
   });
+
+  //endpoint to give a rating to a post
+  app.post("/posts/:postID/:userID/rate", async (req, res) => {
+    try {
+        const { postID, userID } = req.params;
+        const { star } = req.body;
+
+        console.log(`postID: ${postID}`);
+        console.log(`userID: ${userID}`);
+        console.log(`star: ${star}`);
+
+        // Find the post by its ID
+        const post = await Post.findById(postID);
+
+        console.log(`Found post: ${JSON.stringify(post)}`);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        // Check if the user has already rated this post
+        const existingRating = post.points.find(point => point.user.toString() === userID);
+
+        console.log(`Existing rating: ${JSON.stringify(existingRating)}`);
+
+        if (existingRating) {
+            // If the user has already rated this post, update their rating
+            existingRating.star = star;
+        } else {
+            // If the user hasn't rated this post yet, add their rating
+            post.points.push({ user: userID, star });
+        }
+
+        // Save the updated post to the database
+        await post.save();
+
+        console.log(`Updated post: ${JSON.stringify(post)}`);
+
+        res.status(200).json({ message: "Rating saved successfully", post });
+    } catch (error) {
+        console.error(`An error occurred: ${error}`);
+        res.status(500).json({ message: "An error occurred while saving the rating" });
+    }
+});
+
+//endpoint to get all ratings
+
+app.get("/ratings", async (req, res) => {
+    try {
+        // Find all posts in the database
+        const posts = await Post.find().populate('points.user');
+
+        // Extract the ratings from the posts
+        const ratings = posts.flatMap(post => post.points);
+
+        // Send the ratings back to the client
+        res.status(200).json(ratings);
+    } catch (error) {
+        // If an error occurred, send the error message back to the client
+        res.status(500).json({ message: "An error occurred while fetching the ratings", error: error.message });
+    }
+});
+
+//endpoint to get each post rating from the current user
+app.get("/posts/:postID/:userID/rating", async (req, res) => {
+    try {
+        const { postID, userID } = req.params;
+
+        // Find the post by its ID
+        const post = await Post.findById(postID);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        // Find the rating given by the user
+        const userRating = post.points.find(point => point.user.toString() === userID);
+
+        if (!userRating) {
+            // If the user hasn't rated this post yet, return a default rating of 0
+            return res.status(200).json({ rating: 0 });
+        }
+
+        // If the user has rated this post, return their rating
+        res.status(200).json({ rating: userRating.star });
+    } catch (error) {
+        console.error(`An error occurred: ${error}`);
+        res.status(500).json({ message: "An error occurred while fetching the rating" });
+    }
+});

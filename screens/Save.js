@@ -26,7 +26,7 @@ const Save = () => {
   const [savedPosts, setSavedPosts] = useState({});
   const [posts, setPosts] = useState([]);
   const [activeSections, setActiveSections] = useState([]);
-  console.log('API_URL:', API_URL);
+  
   useFocusEffect(
     useCallback(() => {
       // Fetch and decode user ID
@@ -44,9 +44,9 @@ const Save = () => {
           const response = await axios.get(`http://${API_URL}/posts`);
           const saved = response.data.filter(post => post.saved.findIndex(user => user.user.toString() === userID) !== -1);
           setPosts(saved);
-          console.log(response.data);
+          console.log('Save screen: ',response.data);
         } catch (error) {
-          console.log(error);
+          console.log('Save screen: ',error);
         }
       };
       fetchPosts();
@@ -90,14 +90,14 @@ useFocusEffect(
         if (error.response) {
             // The request was made and the server responded with a status code
             // that falls out of the range of 2xx
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
+            console.log('Save screen: ',error.response.data);
+            console.log('Save screen: ',error.response.status);
+            console.log( 'Save screen: ', error.response.headers);
         } else if (error.request) {
             // The request was made but no response was received
             // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
             // http.ClientRequest in node.js
-            console.log(error.request);
+            console.log('Save screen: ', error.request);
         } else {
             // Something happened in setting up the request that triggered an Error
             console.log('Error', error.message);

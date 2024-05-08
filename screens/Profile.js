@@ -42,28 +42,30 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
+  // Handle logout
   const logout = async () => {
     try {
       await AsyncStorage.removeItem('userToken');
       navigation.navigate('Login');
       setUserID('');
+      setPosts([]);
       console.log('Logged out');
     } catch (error) {
       console.error('Failed to logout:', error);
     }
   };
 
+  // Handle deleting a post
   const deletePost = async (postID, userID) => {
-    console.log('Deleting post with ID:', postID);
-    console.log('Deleting post with userID:', userID);
     try {
       await axios.delete(`http://${API_URL}/posts/${postID}/${userID}/delete`);
-      setPosts(posts.filter(post => post._id !== postID)); // Remove the deleted post from the state
+      setPosts(posts.filter(post => post._id !== postID)); 
     } catch (error) {
       console.error('Failed to delete post:', error);
     }
   };
 
+  // Handle updating user details
   const updateUserDetails = async () => {
     try {
       const response = await axios.put(`http://${API_URL}/user/${userID}`, {
@@ -79,12 +81,12 @@ const Profile = () => {
     }
   };
 
+  // Handle updating user password
   const updateUserPassword = async () => {
     if (newPassword !== confirmPassword) {
       Alert.alert('New password and confirm password do not match');
       return;
     }
-
     try {
       const response = await axios.put(`http://${API_URL}/user/${userID}/password`, {
         oldPassword,
@@ -99,10 +101,16 @@ const Profile = () => {
       }
     } catch (error) {
       console.error('Failed to update password:', error);
-      if (error.response && error.response.data && error.response.data.message) {
-        Alert.alert(error.response.data.message);
+      if (error.response) {
+          if (error.response.status === 401) {
+              Alert.alert('Old password is incorrect');
+          } else if (error.response.data && error.response.data.message) {
+              Alert.alert(error.response.data.message);
+          } else {
+              Alert.alert('Failed to update password');
+          }
       } else {
-        alert('Failed to update password');
+          Alert.alert('Failed to update password');
       }
     }
   };
@@ -143,11 +151,14 @@ const Profile = () => {
   );
 
   useEffect(() => {
-    console.log('User:', user);
-    console.log('Posts:', posts);
+    if (user) {
+      console.log('User:', user);
+    }
+    if (posts) {
+      console.log('Posts:', posts);
+    }
     console.log('UserID:', userID);
-  }
-    , [user]);
+  }, [user]);
   return (
     <StyledContainer>
       <InnerContainer>
@@ -245,6 +256,7 @@ const Profile = () => {
                         value={oldPassword}
                         onChangeText={setOldPassword}
                         placeholder=" Old Password"
+                        secureTextEntry
                       />
                     </TextRow>
                     <TextRow>

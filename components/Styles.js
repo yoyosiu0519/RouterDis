@@ -162,7 +162,7 @@ export const SearchContainer = styled.View`
 `}
   `;
   export const SearchInputText = styled.TextInput`
-    color: ${sage};
+    color: ${black};
     font-size: 15px;
     width: 80%;
     padding: 10px;
@@ -266,7 +266,7 @@ export const LocationContainer = styled.View`
     borderColor: ${navy}; 
     borderStyle: solid; 
     ${Platform.OS === 'ios' ? `
-    shadowColor: ${black};
+    shadowColor: ${darkSage};
     shadowOpacity: 0.5;
     shadowOffset: 0px 2px;
     shadowRadius: 2px;
@@ -305,7 +305,7 @@ export const PostContainer = styled.View`
     borderRadius: 3px;
     marginTop: 10px;
     ${Platform.OS === 'ios' ? `
-    shadowColor: ${black};
+    shadowColor: ${darkSage};
     shadowOpacity: 0.5;
     shadowOffset: 0px 2px;
     shadowRadius: 2px;
@@ -330,6 +330,7 @@ export const PostDestination = styled.Text`
     font-weight: bold;
     color: ${darkSage};
     text-align: left;
+    margin-right: 10px;
     `
 export const PostTime = styled.Text`
     font-size: 10px;
@@ -374,12 +375,12 @@ export const PostLocationContainer = styled.View`
     borderWidth: 1px;
     borderRadius: 9px;
     padding: 4px;
-    borderColor: ${cream};
-    backgroundColor: ${cream};
+    borderColor: ${sage};
+    backgroundColor: ${white};
     marginBottom: 10px;
     margin: 5px;
     ${Platform.OS === 'ios' ? `
-    shadowColor: ${black};
+    shadowColor: ${darkSage};
     shadowOpacity: 0.5px;
     shadowOffset: 0px 2px;
     shadowRadius: 2px;

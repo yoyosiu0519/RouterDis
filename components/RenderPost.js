@@ -1,7 +1,6 @@
 import { StyleSheet, Text, View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
-import React, { useState, useEffect, useContext } from 'react'
+import React, { useState, useMemo, useContext } from 'react'
 import Accordion from 'react-native-collapsible/Accordion';
-import { Entypo } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { FontAwesome6 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,7 +9,8 @@ import { jwtDecode } from 'jwt-decode';
 import 'core-js/stable/atob';
 import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { UserType } from '../UserContext';
+import { Rating } from 'react-native-ratings';
+import RenderLocations from './RenderLocations';
 import {
     Colors,
     TextRow,
@@ -42,111 +42,79 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
         return differenceInHours;
     };
 
-    const renderLocations = (locations) => {
-        // Group locations by day
-        const locationsByDay = locations.reduce((groups, location) => {
-            const day = location.day;
-            if (!groups[day]) {
-                groups[day] = [];
-            }
-            groups[day].push(location);
-            return groups;
-        }, {});
+    const rating = useMemo(() => {
+        const ratings = post.points.map(point => point.star);
+        const sum = ratings.reduce((total, rating) => total + rating, 0);
+        const average = sum / ratings.length;
+        return average;
+    }, [post]);
 
-        return (
-            <View style={{ padding: 10 }}>
-                {/* post content */}
-                {Object.keys(locationsByDay).map(day => (
-                    <View key={day} style={{ marginBottom: 20 }}>
-                        <PostDay>Day: {day}</PostDay>
-                        {locationsByDay[day].map((location, index) => {
-                            return (
-                                <View key={index} style={{ flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 }}>
-                                    <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-                                        <Entypo name="location-pin" size={54} color={Colors.sage} />
-                                        <Entypo name="dot-single" size={24} color="black" />
+    const validRating = !isNaN(rating) && isFinite(rating) ? rating : 0;
 
-                                    </View>
-                                    <View style={{ marginLeft: 10, marginBottom: 20, flexShrink: 1 }}>
-                                        {/* each location details */}
-                                        <PostLocation> {location.name}</PostLocation>
-                                        <LocationTitle>From: <LocationDetails>{location.from}</LocationDetails></LocationTitle>
-                                        <LocationTitle style={{ marginBottom: 5 }}>To: <LocationDetails>{location.to}</LocationDetails></LocationTitle>
-                                        {location.description &&
-                                            <>
-                                                <TextRow>
-                                                    <LocationTitle>Description:</LocationTitle>
-                                                </TextRow>
-                                                <TextRow style={{ marginLeft: 15, marginBottom: 5 }}>
-                                                    <LocationDetails >{location.description}</LocationDetails>
-                                                </TextRow>
-                                            </>
-                                        }
-                                        {location.transport &&
-                                            <LocationTitle>Transport: <LocationDetails>{location.transport}</LocationDetails></LocationTitle>
-                                        }
-                                        {location.duration &&
-                                            <LocationTitle>Duration: <LocationDetails>{location.duration}</LocationDetails></LocationTitle>
-                                        }
-                                    </View>
+    return (
+        <PostLocationContainer>
+            {post && (
+                <Accordion
+                    activeSections={activeSections}
+                    sections={[post]}
+                    onChange={toggleSection}
+                    touchableProps={{ underlayColor: 'transparent' }}
+
+                    renderHeader={post => (
+                        <View>
+                            <TextRow>
+                                <PostDestination>{post.destination}</PostDestination>
+                                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <Rating
+                                        imageSize={20}
+                                        readonly
+                                        startingValue={validRating}
+                                        ratingColor={Colors.red}
+                                        
+                                        style={{ paddingVertical: 10 }}
+                                    />
+                                    {activeSections.includes(0) ? (
+                                        <Ionicons name="caret-up" size={24} color={Colors.navy} />
+                                    ) : (
+                                        <Ionicons name="caret-down" size={24} color={Colors.navy} />
+                                    )}
                                 </View>
-                            );
-                        })}
-                    </View>
-                ))}
-            </View>
-        );
-    };
+                            </TextRow>
+                            <TextRow>
+                                <PostUser>{post.user.firstname} {post.user.surname}</PostUser>
+                                <PostTime>{getHoursSince(post.createdAt)} hours ago</PostTime>
+                            </TextRow>
+                        </View>
+                    )}
 
-return (
-    <PostLocationContainer>
-        {post && (
-            <Accordion
-                activeSections={activeSections}
-                sections={[post]}
-                onChange={toggleSection}
-                touchableProps={{ underlayColor: 'transparent' }}
+                    renderContent={post => (
+                        <Pressable activeOpacity={1} onPress={toggleSection}>
+                            <RenderLocations locations={post.locations} />
 
-                renderHeader={post => (
-                    <View>
-                        <TextRow>
-                            <PostDestination>{post.destination}</PostDestination>
-                            {activeSections.includes(0) ? (
-                                <Ionicons name="caret-up" size={24} color={Colors.navy} />
-                            ) : (
-                                <Ionicons name="caret-down" size={24} color={Colors.navy} />
+                            {post.user._id !== userID && (
+                                <>
+                                    <Ionicons
+                                        style={{ alignSelf: 'flex-end', marginRight: 10 }}
+                                        name={savedPosts[post._id] ? "bookmark" : "bookmark-outline"}
+                                        size={34}
+                                        color={Colors.red}
+                                        onPress={() => savePost(post._id, userID)}
+                                    />
+                                </>
                             )}
-                        </TextRow>
-                        <TextRow>
-                            <PostUser>{post.user.firstname} {post.user.surname}</PostUser>
-                            <PostTime>{getHoursSince(post.createdAt)} hours ago</PostTime>
-                        </TextRow>
-                    </View>
-                )}
+                            {showDeleteButton && (
+                                <StyledButton onPress={() => deletePost(post._id)}>
+                                    <ButtonText>Delete Post</ButtonText>
+                                </StyledButton>
+                            )}
 
-                renderContent={post => (
-                    <Pressable activeOpacity={1} onPress={toggleSection}>
-                        {renderLocations(post.locations)}
 
-                        {post.user._id !== userID && (
-                            <Ionicons
-                                name={savedPosts[post._id] ? "bookmark" : "bookmark-outline"}
-                                size={24}
-                                color={Colors.red}
-                                onPress={() => savePost(post._id, userID)}
-                            />
-                        )}
-                        {showDeleteButton && (
-                            <StyledButton onPress={() => deletePost(post._id)}>
-                                <ButtonText>Delete Post</ButtonText>
-                            </StyledButton>
-                        )}
-                    </Pressable>
-                )}
-            />
-        )}
-    </PostLocationContainer>
-);
+                        </Pressable>
+                    )}
+                />
+            )}
+        </PostLocationContainer>
+    );
 };
 
 export default RenderPost;
