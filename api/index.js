@@ -471,15 +471,7 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
     try {
         const { postID, userID } = req.params;
         const { star } = req.body;
-
-        console.log(`postID: ${postID}`);
-        console.log(`userID: ${userID}`);
-        console.log(`star: ${star}`);
-
-        // Find the post by its ID
         const post = await Post.findById(postID);
-
-        console.log(`Found post: ${JSON.stringify(post)}`);
 
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
@@ -487,8 +479,6 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
 
         // Check if the user has already rated this post
         const existingRating = post.points.find(point => point.user.toString() === userID);
-
-        console.log(`Existing rating: ${JSON.stringify(existingRating)}`);
 
         if (existingRating) {
             // If the user has already rated this post, update their rating
@@ -500,8 +490,6 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
 
         // Save the updated post to the database
         await post.save();
-
-        console.log(`Updated post: ${JSON.stringify(post)}`);
 
         res.status(200).json({ message: "Rating saved successfully", post });
     } catch (error) {
@@ -553,5 +541,55 @@ app.get("/posts/:postID/:userID/rating", async (req, res) => {
     } catch (error) {
         console.error(`An error occurred: ${error}`);
         res.status(500).json({ message: "An error occurred while fetching the rating" });
+    }
+});
+
+//endpoint to comment on a post
+
+app.post("/posts/:postID/:userID/comment", async (req, res) => {
+    try {
+        const { postID, userID } = req.params;
+        const { text } = req.body;
+        const post = await Post.findById(postID);
+
+        if (!post) {
+            return res.status(404).json({ message: "Post not found" });
+        }
+
+        post.comments.push({ user: userID, text });
+
+        await post.save();
+
+        res.status(200).json({ message: "Comment saved successfully", post });
+    } catch (error) {
+        console.error(`An error occurred: ${error}`);
+        res.status(500).json({ message: "An error occurred while saving the comment" });
+    }
+});
+
+//Endpoint to get all comments for a post
+app.get('/posts/:postId/comments', async (req, res) => {
+    try {
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).send({ message: 'Post not found' });
+        }
+
+        const comments = await Comment.find({ postId: postId }).populate('user');
+
+        // Map through the comments and return the comment text and the user's full name
+        const commentsWithUsernames = comments.map(comment => ({
+            text: comment.text,
+            user: {
+                firstName: comment.user.firstName,
+                surname: comment.user.surname
+            }
+        }));
+
+        res.send(commentsWithUsernames);
+    } catch (error) {
+        res.status(500).send({ message: 'Server error' });
     }
 });

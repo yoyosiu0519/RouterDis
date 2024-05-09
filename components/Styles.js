@@ -286,6 +286,8 @@ export const WhiteInputField = styled.TextInput`
     color: ${lightGrey};
     backgroundColor: ${white};
     borderRadius: 15px;
+    borderWidth: 2px;
+    borderColor: ${sage};
     fontSize: 15px;
     width: 65%;
     padding: 10px;
@@ -397,3 +399,10 @@ export const MessageText = styled.Text`
     padding: 50px;
     `
 
+export const ReviewText = styled.Text`
+    font-size: 20px;
+    font-weight: bold;
+    color: ${navy};
+    text-align: center;
+    padding: 10px;
+    `
