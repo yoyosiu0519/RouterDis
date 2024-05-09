@@ -7,7 +7,7 @@ import { API_URL_ANDROID, API_URL_IOS } from '../config';
 import { jwtDecode } from 'jwt-decode';
 import 'core-js/stable/atob';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 
 import {
@@ -19,7 +19,8 @@ import {
   ButtonText,
   ScreenHeadtitle,
   LogoContainer,
-  FollowButton
+  FollowButton,
+  PostDestination,
 
 } from "./../components/Styles";
 
@@ -28,19 +29,23 @@ const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 const Network = () => {
   const navigation = useNavigation();
   const [selectedButton, setSelctedButton] = useState("people");
-  const [content, setContent] = useState("People Content");
   const { userID, setUserID } = useContext(UserType);
   const [users, setUsers] = useState([]);
   const [followingUsers, setFollowingUsers] = useState([]);
   const [followers, setFollowers] = useState([]);
- 
+
 
   const handleSelectedButton = (button) => {
     setSelctedButton(button);
+    if (button === 'people') {
+      fetchPeople();
+    } else if (button === 'follow') {
+      fetchFollowingUsers();
+    } else if (button === 'follower') {
+      fetchFollowers();
+    }
   }
   const handleFollow = (loggedInUserID, followUserID) => {
-    console.log('loggedInUserID:', loggedInUserID);
-    console.log('followUserID:', followUserID);
     axios.post(`http://${API_URL}/follow`, {
       loggedInUserID,
       followUserID
@@ -57,54 +62,45 @@ const Network = () => {
       unfollowUserID
     }).then((response) => {
       console.log(response.data.message); // "User unfollowed successfully"
-      setUsers(users.filter(user => user._id !== unfollowUserID));
+      setUsers(users => users.filter(user => user._id !== unfollowUserID));
+      setFollowingUsers(followingUsers => followingUsers.filter(user => user._id !== unfollowUserID));
     }).catch((error) => {
       console.log(error.response.data.message); // "Unable to unfollow user"
     });
   }
-  const logToken = async () => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
-      console.log("Retrieved token:", token);
-    } catch (error) {
-      console.log("Error getting token:", error);
-    }
-  }
-  useEffect(() => {
-    console.log(followers);
-  }, [followers]);
-  useEffect(() => {
-    const fetchPeople = async () => {
-      const token = await AsyncStorage.getItem('userToken');
-      const decodedToken = jwtDecode(token);
-      const userID = decodedToken.userID;
-      setUserID(userID);
 
-      axios.get(`http://${API_URL}/user/${userID}`).then((response) => {
-        console.log("Server response:", response.data);
-        setUsers(response.data.users);
-        setFollowers(response.data.users.filter(user => user.followers.includes(userID)));
-      }).catch((error) => {
-        console.log("Error fetching people", error);
-      });
-    };
+  const fetchPeople = async () => {
+    axios.get(`http://${API_URL}/user/${userID}`).then((response) => {
+      console.log("Server response:", response.data);
+      const otherUsers = response.data.users.filter(user => user._id !== userID);
+      setUsers(otherUsers);
+      setFollowers(otherUsers.filter(user => user.followers.includes(userID)));
+    }).catch((error) => {
+      console.log("Error fetching people", error);
+    });
+  };
+
+  const fetchFollowingUsers = async () => {
+    try {
+      const response = await axios.get(`http://${API_URL}/users/${userID}/following`);
+      setFollowingUsers(response.data.following);
+    } catch (error) {
+      console.log("Error fetching following users", error);
+    }
+  };
+
+  const fetchFollowers = async () => {
+    try {
+      const response = await axios.get(`http://${API_URL}/users/${userID}/followers`);
+      setFollowers(response.data.followers);
+    } catch (error) {
+      console.log("Error fetching followers", error);
+    }
+  };
+
+  useEffect(() => {
     fetchPeople();
   }, []);
-  useEffect(() => {
-    axios.get(`http://${API_URL}/users/${userID}/following`)
-      .then((response) => {
-        setFollowingUsers(response.data.following);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, [userID]);
-  
-
-  useEffect(() => {
-    logToken();
-  }, []);
-  console.log("users", users);
   return (
     <KeyboardAvoid>
       <StyledContainer>
@@ -174,7 +170,7 @@ const Network = () => {
                     <View key={index} style={{ marginBottom: 10 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ flex: 1 }}>
-                          <Text>{item.firstname} {item.surname}</Text>
+                          <PostDestination>{item.firstname} {item.surname}</PostDestination>
                         </View>
                         <View style={{ flex: 1 }}>
                           <FollowButton onPress={() => handleFollow(userID, item._id)}>
@@ -197,7 +193,7 @@ const Network = () => {
                     <View key={index} style={{ marginBottom: 10 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ flex: 1 }}>
-                        <Text>{item.firstname} {item.surname}</Text>
+                          <PostDestination>{item.firstname} {item.surname}</PostDestination>
                         </View>
                         <View style={{ flex: 1 }}>
                           <FollowButton onPress={() => handleUnfollow(userID, item._id)}>
@@ -212,14 +208,15 @@ const Network = () => {
             </View>
 
             {/* ........For the follower button.........*/}
+
             <View>
               {selectedButton === "follower" && (
                 <View style={{ marginTop: 20 }}>
-                  {followers?.filter(item => item.followers.includes(userID)).map((item, index) => (
+                  {followers.map((item, index) => (
                     <View key={index} style={{ marginBottom: 10 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <View style={{ flex: 1 }}>
-                        <Text>{item.firstname} {item.surname}</Text>
+                          <PostDestination style={{ textAlign: 'center' }}>{item.firstname} {item.surname}</PostDestination>
                         </View>
                       </View>
                     </View>
@@ -235,5 +232,3 @@ const Network = () => {
 }
 
 export default Network
-
-const styles = StyleSheet.create({})

@@ -163,11 +163,10 @@ app.post("/login", async (req, res) => {
 })
 
 
-//Endpoint to get all users without the logged in user
+//Endpoint to get all users
 app.get("/user/:userID", async (req, res) => {
     try {
-        const loggedInUserID = req.params.userID;
-        User.find({ _id: { $ne: loggedInUserID } }).then((users) => {
+        User.find({}).then((users) => {
             res.status(200).json({ users });
         }).catch((error) => {
             console.log("Unable to get all users", error);
@@ -178,8 +177,7 @@ app.get("/user/:userID", async (req, res) => {
             message: "Unable to get users"
         });
     }
-}
-);
+});
 
 //endpoint to update user profile
 app.put("/user/:userID", async (req, res) => {
@@ -224,12 +222,11 @@ app.put("/user/:userID", async (req, res) => {
     }
   });
 
-//endpoint to update user password
+//Endpoint to update user password
 app.put("/user/:userID/password", async (req, res) => {
     try {
         const { userID } = req.params;
         const { oldPassword, newPassword } = req.body;
-
         const user = await User.findById(userID);
 
         if (!user) {
@@ -270,7 +267,7 @@ app.post("/follow", async (req, res) => {
 }
 );
 
-//endpoint to get followers of a user
+//endpoint for user's following
 app.get("/users/:userID/following", async (req, res) => {
     const userID = req.params.userID;
     try {
@@ -279,6 +276,19 @@ app.get("/users/:userID/following", async (req, res) => {
     } catch (error) {
         res.status(500).json({
             message: "Unable to get following users"
+        });
+    }
+});
+
+// Endpoint to get all followers of a user
+app.get("/users/:userID/followers", async (req, res) => {
+    const userID = req.params.userID;
+    try {
+        const user = await User.findById(userID).populate('followers');
+        res.status(200).json({ followers: user.followers });
+    } catch (error) {
+        res.status(500).json({
+            message: "Unable to get followers"
         });
     }
 });

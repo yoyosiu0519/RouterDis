@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Rating } from 'react-native-ratings';
 import RenderLocations from './RenderLocations';
+import RatingInput from './RatingInput';
 import {
     Colors,
     TextRow,
@@ -18,14 +19,13 @@ import {
     PostTime,
     PostDestination,
     PostLocationContainer,
-    PostDay,
-    PostLocation,
-    LocationTitle,
-    LocationDetails,
     StyledButton,
     ButtonText
 
 } from "./../components/Styles";
+
+const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
+
 
 const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, deletePost }) => {
     const [activeSections, setActiveSections] = useState([]);
@@ -51,6 +51,17 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
 
     const validRating = !isNaN(rating) && isFinite(rating) ? rating : 0;
 
+    const handleRate = async (rating) => {
+        console.log(`Rating: ${rating}, Post ID: ${post._id}`);
+        try {
+          const response = await axios.post(`http://${API_URL}/posts/${post._id}/${userID}/rate`, {
+            star: rating,
+          });
+        } catch (error) {
+          // Handle error
+        }
+      };
+
     return (
         <PostLocationContainer>
             {post && (
@@ -70,7 +81,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                         readonly
                                         startingValue={validRating}
                                         ratingColor={Colors.red}
-                                        
+
                                         style={{ paddingVertical: 10 }}
                                     />
                                     {activeSections.includes(0) ? (
@@ -92,7 +103,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                             <RenderLocations locations={post.locations} />
 
                             {post.user._id !== userID && (
-                                <>
+                                <View>
                                     <Ionicons
                                         style={{ alignSelf: 'flex-end', marginRight: 10 }}
                                         name={savedPosts[post._id] ? "bookmark" : "bookmark-outline"}
@@ -100,7 +111,8 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                         color={Colors.red}
                                         onPress={() => savePost(post._id, userID)}
                                     />
-                                </>
+                                    <RatingInput onRate={handleRate} />
+                                </View>
                             )}
                             {showDeleteButton && (
                                 <StyledButton onPress={() => deletePost(post._id)}>
