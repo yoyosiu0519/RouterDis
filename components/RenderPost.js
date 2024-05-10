@@ -12,6 +12,7 @@ import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Rating } from 'react-native-ratings';
 import RenderLocations from './RenderLocations';
 import RatingInput from './RatingInput';
+import Comments from './Comment';
 import {
     Colors,
     TextRow,
@@ -141,6 +142,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                     color={Colors.red}
                                     onPress={() => savePost(post._id, userID)}
                                 />
+                                     <Comments postID={post._id} />
                                 <StyledPostButton onPress={handleWriteReview}>
                                     <ButtonText>{isReviewing ? 'Hide' : 'Write a Review'}</ButtonText>
                                 </StyledPostButton>

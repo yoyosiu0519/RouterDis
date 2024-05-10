@@ -567,29 +567,29 @@ app.post("/posts/:postID/:userID/comment", async (req, res) => {
     }
 });
 
+
 //Endpoint to get all comments for a post
-app.get('/posts/:postId/comments', async (req, res) => {
+app.get('/posts/:postID/comments', async (req, res) => {
     try {
-        const postId = req.params.postId;
-        const post = await Post.findById(postId);
+        const postID = req.params.postID;
+        console.log(`Fetching comments for post with ID: ${postID}`);
+        const post = await Post.findById(postID).populate('comments.user');
 
         if (!post) {
             return res.status(404).send({ message: 'Post not found' });
         }
 
-        const comments = await Comment.find({ postId: postId }).populate('user');
-
-        // Map through the comments and return the comment text and the user's full name
-        const commentsWithUsernames = comments.map(comment => ({
+        const comments = post.comments.map(comment => ({
             text: comment.text,
             user: {
-                firstName: comment.user.firstName,
+                firstname: comment.user.firstname,
                 surname: comment.user.surname
             }
         }));
 
-        res.send(commentsWithUsernames);
+        res.status(200).json(comments);
     } catch (error) {
-        res.status(500).send({ message: 'Server error' });
+        console.error(error);
+        res.status(500).json({ message: "An error occurred while fetching the comments" });
     }
 });

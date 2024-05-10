@@ -130,7 +130,7 @@ export const ButtonText = styled.Text`
     font-weight: bold;
     text-align: center;
     `
-    export const ColorButtonText = styled.Text`
+export const ColorButtonText = styled.Text`
     color: ${sage};
     font-size: 15.5px;
     font-weight: bold;
@@ -405,4 +405,9 @@ export const ReviewText = styled.Text`
     color: ${navy};
     text-align: center;
     padding: 10px;
+    `
+export const ReviewContainer = styled.View`
+    borderBottomWidth: 2px;
+    borderBottomColor: ${sage};
+    padding: 7px;
     `
