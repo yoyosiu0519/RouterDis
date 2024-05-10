@@ -593,3 +593,36 @@ app.get('/posts/:postID/comments', async (req, res) => {
         res.status(500).json({ message: "An error occurred while fetching the comments" });
     }
 });
+
+//Endpoint to delete a comment
+app.delete('/posts/:postID/:userID/comments', async (req, res) => {
+    try {
+        const { postID, userID } = req.params;
+        const { commentID } = req.body;
+
+        const post = await Post.findById(postID);
+
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentID);
+
+        if (commentIndex === -1) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        if (post.comments[commentIndex].user.toString() !== userID) {
+            return res.status(403).json({ message: 'You do not have permission to delete this comment' });
+        }
+
+        post.comments.splice(commentIndex, 1);
+
+        await post.save();
+
+        res.status(200).json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'An error occurred while deleting the comment' });
+    }
+});
