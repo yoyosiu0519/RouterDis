@@ -142,7 +142,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                     color={Colors.red}
                                     onPress={() => savePost(post._id, userID)}
                                 />
-                                     <Comments postID={post._id} />
+                                     <Comments postID={post._id} userID={userID} />
                                 <StyledPostButton onPress={handleWriteReview}>
                                     <ButtonText>{isReviewing ? 'Hide' : 'Write a Review'}</ButtonText>
                                 </StyledPostButton>
