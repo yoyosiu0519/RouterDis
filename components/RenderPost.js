@@ -1,14 +1,10 @@
-import { StyleSheet, TextInput, View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
-import React, { useState, useMemo, useContext } from 'react'
+import { View, Pressable, Platform } from 'react-native'
+import React, { useState, useMemo } from 'react'
 import Accordion from 'react-native-collapsible/Accordion';
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
-import { jwtDecode } from 'jwt-decode';
 import 'core-js/stable/atob';
 import axios from 'axios';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Rating } from 'react-native-ratings';
 import RenderLocations from './RenderLocations';
 import RatingInput from './RatingInput';
@@ -32,7 +28,7 @@ const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, deletePost }) => {
     const [activeSections, setActiveSections] = useState([]);
     const [isReviewing, setIsReviewing] = useState(false);
-
+    const [comments, setComments] = useState([]);
     const toggleSection = () => {
         setActiveSections(activeSections.includes(0) ? [] : [0]);
     };
@@ -67,7 +63,6 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
 
     const validRating = !isNaN(rating) && isFinite(rating) ? rating : 0;
     const handleRate = async (rating) => {
-        console.log(`Rating: ${rating}, Post ID: ${post._id}`);
         setUserRating(rating);
         try {
             const response = await axios.post(`http://${API_URL}/posts/${post._id}/${userID}/rate`, {
@@ -82,12 +77,12 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
     };
 
     const handleComment = async (comment) => {
-        console.log(`Comment: ${comment}, Post ID: ${post._id}`);
         try {
             const response = await axios.post(`http://${API_URL}/posts/${post._id}/${userID}/comment`, {
                 text: comment,
             });
             console.log('Comment saved successfully:', response.data);
+            setComments(prevComments => [...prevComments, response.data.comment]);
         } catch (error) {
             console.log('Error commenting on post:', error);
         }

@@ -52,8 +52,8 @@ const postSchema = new mongoose.Schema({
             star: {
                 type: Number,
                 required: true,
-                min: 0.5, // minimum rating value
-                max: 5  // maximum rating value
+                min: 0, 
+                max: 5 
             }
         }
 

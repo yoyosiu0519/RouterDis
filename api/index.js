@@ -580,8 +580,10 @@ app.get('/posts/:postID/comments', async (req, res) => {
         }
 
         const comments = post.comments.map(comment => ({
+            _id: comment._id,
             text: comment.text,
             user: {
+                _id: comment.user._id,
                 firstname: comment.user.firstname,
                 surname: comment.user.surname
             }
@@ -609,7 +611,7 @@ app.delete('/posts/:postID/:userID/comments', async (req, res) => {
         const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentID);
 
         if (commentIndex === -1) {
-            return res.status(404).json({ message: 'Comment not found' });
+            return res.status(402).json({ message: 'Comment not found' });
         }
 
         if (post.comments[commentIndex].user.toString() !== userID) {
