@@ -85,7 +85,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
             });
             setComments(prevComments => [...prevComments, response.data.comment]);
         } catch (error) {
-            console.log('Error commenting on post:', error);
+            
         }
     };
 
