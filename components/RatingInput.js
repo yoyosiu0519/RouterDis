@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput } from 'react-native';
+import { View} from 'react-native';
 import { Rating } from 'react-native-ratings';
 import {
   Colors,
@@ -13,10 +13,12 @@ const RatingInput = ({ onRate, initialRating, onComment }) => {
   const [rating, setRating] = useState(initialRating || 0);
   const [comment, setComment] = useState('');
 
+  // Update rating if initialRating changes
   useEffect(() => {
     setRating(initialRating || 0);
   }, [initialRating]);
 
+  // Handle submit button
   const handleSubmit = () => {
     onRate(rating);
     onComment(comment);
@@ -28,20 +30,16 @@ const RatingInput = ({ onRate, initialRating, onComment }) => {
       <ReviewText>
         {rating > 0 ? 'Update your previous rating?' : 'Give a rating?'}
       </ReviewText>
-
       <Rating
         startingValue={rating}
         onFinishRating={(value) => {
-          console.log('onFinishRating value:', value);
           setRating(value);
         }}
         style={{ paddingVertical: 10 }}
       />
-
       <ReviewText>
         Want to leave a comment?
       </ReviewText>
-
       <WhiteInputField
         value={comment}
         onChangeText={setComment}
@@ -50,7 +48,6 @@ const RatingInput = ({ onRate, initialRating, onComment }) => {
         numberOfLines={4}
         style={{ height: 80, width: '90%', alignSelf: 'center', textAlignVertical: 'top' }}
       />
-
       <StyledButton onPress={handleSubmit} style={{ backgroundColor: Colors.sage }}>
         <ButtonText >
           Submit Review

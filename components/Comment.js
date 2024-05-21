@@ -8,8 +8,7 @@ import {
   PostDestination, 
   LocationTitle,
   LocationDetails,
-  TextRow,
-
+  TextRow
 } from './Styles';
 
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
@@ -17,17 +16,18 @@ const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 const Comments = ({ postID, userID}) => {
   const [comments, setComments] = useState([]);
 
-
+// Handle delete comment
   const handleDelete = (commentID) => {
     axios.delete(`http://${API_URL}/posts/${postID}/${userID}/comments`, { data: { commentID } })
       .then((response) => {
         setComments(comments.filter(comment => comment._id !== commentID));
       })
       .catch((error) => {
-        console.error('Delete error:', error); // Log the error
+        console.error('Delete error:', error); 
       });
   };
 
+  // Fetch comments
   useEffect(() => {
     axios.get(`http://${API_URL}/posts/${postID}/comments`)
       .then((response) => {

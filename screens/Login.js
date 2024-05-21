@@ -28,7 +28,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
-  //Check user logged in status
+
+  //Check user logged in status and redirect to main page if logged in
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
@@ -44,27 +45,15 @@ const Login = () => {
     checkLoginStatus();
   }, [])
 
-  const logToken = async () => {
-    try {
-      const token = await AsyncStorage.getItem("userToken");
-      console.log("Retrieved token:", token);
-    } catch (error) {
-      console.log("Error getting token:", error);
-    }
-  }
+  //Handle login button press
   const handleLogin = () => {
     const user = {
       email: email,
       password: password
     }
-
     axios.post(`http://${API_URL}/login`, user).then((response) => {
-      console.log(`Status code: ${response.status}`);
-      console.log(`Server message: ${response.data.message}`);
       const token = response.data.token;
       AsyncStorage.setItem("userToken", token);
-      logToken();
-      console.log("Stored token:", token);
       navigation.replace("Main");
     }).catch((error) => {
       if (error.response && error.response.status === 401) {
@@ -75,8 +64,6 @@ const Login = () => {
       console.log("Login failed", error);
     })
   }
-
-
 
   return (
     <KeyboardAvoid>
@@ -90,7 +77,7 @@ const Login = () => {
               <MaterialIcons style={{ marginLeft: 8 }} name="email" size={24} color={Colors.cream} />
               <StyledInputText
                 value={email}
-                onChangeText={(text) => setEmail(text)} //set the value of email to the user's text input
+                onChangeText={(text) => setEmail(text)}
                 placeholder="Email"
                 placeholderTextColor={Colors.cream}
               />
@@ -99,7 +86,7 @@ const Login = () => {
               <Entypo style={{ marginLeft: 8 }} name="lock" size={24} color={Colors.cream} />
               <StyledInputText
                 value={password}
-                onChangeText={(text) => setPassword(text)} //set the value of password to the user's text input
+                onChangeText={(text) => setPassword(text)}
                 secureTextEntry={true}
                 placeholder="Password"
                 placeholderTextColor={Colors.cream}
@@ -109,12 +96,10 @@ const Login = () => {
               style={{
                 marginTop: 5,
               }}>
-                <View style={{padding: 10}}>
-
-                
-              <PressableText>
-                Don't have an account? Sign Up Here
-              </PressableText>
+              <View style={{ padding: 10 }}>
+                <PressableText>
+                  Don't have an account? Sign Up Here
+                </PressableText>
               </View>
             </Pressable>
             <StyledButton onPress={handleLogin}>
@@ -122,10 +107,6 @@ const Login = () => {
                 Login
               </ButtonText>
             </StyledButton>
-
-
-
-
           </SafeAreaView>
         </InnerContainer>
       </StyledContainer>
@@ -135,5 +116,3 @@ const Login = () => {
 }
 
 export default Login
-
-const styles = StyleSheet.create({})

@@ -10,14 +10,13 @@ import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import Post from '../components/RenderPost';
-
 import {
-    
-    StyledContainer,
-    Subtitle,
-    PostContainer,
-    PostTitle,
-    MessageText,
+
+  StyledContainer,
+  Subtitle,
+  PostContainer,
+  PostTitle,
+  MessageText,
 } from "./../components/Styles";
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 
@@ -26,7 +25,7 @@ const Save = () => {
   const [savedPosts, setSavedPosts] = useState({});
   const [posts, setPosts] = useState([]);
   const [activeSections, setActiveSections] = useState([]);
-  
+
   useFocusEffect(
     useCallback(() => {
       // Fetch and decode user ID
@@ -37,101 +36,90 @@ const Save = () => {
         setUserID(userID);
       };
       fetchPeople();
-  
+
       // Fetch all posts
       const fetchPosts = async () => {
         try {
           const response = await axios.get(`http://${API_URL}/posts`);
           const saved = response.data.filter(post => post.saved.findIndex(user => user.user.toString() === userID) !== -1);
           setPosts(saved);
-          console.log('Save screen: ',response.data);
         } catch (error) {
-          console.log('Save screen: ',error);
+          console.log('Save screen: ', error);
         }
       };
       fetchPosts();
-  
+
       // Reset the active sections
       setActiveSections([]);
-  
+
       return () => { };
     }, [userID, savedPosts])
   );
-useFocusEffect(
+  // Handle save post
+  useFocusEffect(
     useCallback(() => {
       const fetchSavedPosts = async () => {
         try {
           const response = await axios.get(`http://${API_URL}/users/${userID}/savedPosts`);
-          console.log('response.data:', response.data);
           const savedPosts = response.data.savedPosts.reduce((acc, post) => ({ ...acc, [post._id]: true }), {});
           setSavedPosts(savedPosts);
         } catch (error) {
           console.error('Failed to fetch saved posts:', error);
         }
       };
-  
+
       if (userID) {
         fetchSavedPosts();
       }
-      return () => {};
+      return () => { };
     }, [userID])
   );
   const savePost = async (postID, userID) => {
     try {
-        const response = await axios.put(`http://${API_URL}/posts/${postID}/${userID}/save`);
-        console.log('savePost response:', response.data);
-        // Update the savedPosts state
-        setSavedPosts(prevState => ({
-            ...prevState,
-            [postID]: response.data.saved.findIndex(user => user.user.toString() === userID) !== -1,
-        }));
+      const response = await axios.put(`http://${API_URL}/posts/${postID}/${userID}/save`);
+      setSavedPosts(prevState => ({
+        ...prevState,
+        [postID]: response.data.saved.findIndex(user => user.user.toString() === userID) !== -1,
+      }));
     } catch (error) {
-        console.error('Failed to save post:', error);
-        if (error.response) {
-
-        } else if (error.request) {
-            console.log('Save screen: ', error.request);
-        } else {
-            console.log('Error', error.message);
-        }
-        console.log(error.config);
+      console.error('Failed to save post:', error);
     }
-};
+  };
 
- 
+
   return (
     <KeyboardAvoid>
-    <StyledContainer>
+      <StyledContainer>
         <SafeAreaView>
-            <ScrollView>
+          <ScrollView>
             {posts.length === 0 ? (
               <View>
-  <Subtitle>You currently have no saved posts</Subtitle>
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-  <FontAwesome6 name="face-sad-cry" size={80} color="black" />
-</View>
-<MessageText>Start saving posts for your next trip! </MessageText>
-  
-  </View>
-) : (
-  <PostContainer>
-    <PostTitle>Your Saved Posts</PostTitle>
-    {userID && posts.map((post, index) => (
-      <Post
-        key={index}
-        post={post}
-        savedPosts={savedPosts}
-        savePost={savePost}
-        userID={userID}
-        isActive={activeSections.includes(index)}
-      />
-    ))}
-  </PostContainer>
-)}
-            </ScrollView>
-                </SafeAreaView>
-            </StyledContainer>
-        </KeyboardAvoid>
+                <Subtitle>You currently have no saved posts</Subtitle>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                  <FontAwesome6 name="face-sad-cry" size={80} color="black" />
+                </View>
+                <MessageText>Start saving posts for your next trip! </MessageText>
+
+              </View>
+            ) : (
+              <PostContainer>
+                <PostTitle>Your Saved Posts</PostTitle>
+                {userID && posts.map((post, index) => (
+                  <Post
+                    key={index}
+                    post={post}
+                    savedPosts={savedPosts}
+                    savePost={savePost}
+                    userID={userID}
+                    isActive={activeSections.includes(index)}
+                  />
+                ))}
+              </PostContainer>
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </StyledContainer>
+    </KeyboardAvoid>
   );
 };
 

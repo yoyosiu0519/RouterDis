@@ -6,19 +6,18 @@ const crypto = require('crypto'); // Import crypto
 const bcrypt = require('bcrypt'); // Import bcrypt
 const nodemailer = require('nodemailer'); // Import nodemailer
 const cors = require('cors'); // Import cors
-
 const app = express(); // Create app
 const port = 3000;
 const saltRounds = 10;
 
 app.use(cors()); // Use cors
-app.use(bodyParser.urlencoded({ extended: false })); // Middleware
-app.use(bodyParser.json()); // Middleware
+app.use(bodyParser.urlencoded({ extended: false })); 
+app.use(bodyParser.json());
 const jwt = require('jsonwebtoken'); // Import jsonwebtoken
 
 mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true, //Parse MongoDB connection strings 
-    useUnifiedTopology: true, //removes support for several connection options that are no longer relevant with the new topology engine
+    useUnifiedTopology: true, 
 }).then(() => {
     console.log("Connected to MongoDB");
 }).catch((err) => {
@@ -42,7 +41,6 @@ app.post("/register", async (req, res) => {
         //Check if email is already in use
         const emailExists = await User.findOne({ email });
         if (emailExists) {
-            console.log("Email already in use");
             return res.status(409).json({ message: "Email already in use" });
         }
         //Create a new user
@@ -135,22 +133,18 @@ app.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
         const user = await User.findOne({ email });//Check if user exists already
-
         if (!user) {
             return res.status(401).json({ message: "Invalid email or password" });
         }
-        
         if (!user.verified) {
             return res.status(401).json({ message: 'User not verified' });
         }
-
         // Compare the entered password with the hashed password
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
             return res.status(401).end();
         }
-
         const token = jwt.sign({ userID: user._id }, secretKey)
         res.status(200).json({ message: "Login successful", token });
 
@@ -179,14 +173,12 @@ app.get("/user/:userID", async (req, res) => {
     }
 });
 
-//endpoint to update user profile
+//Endpoint to update user profile
 app.put("/user/:userID", async (req, res) => {
     try {
       const { userID } = req.params;
       const { firstname, surname, email, userBio } = req.body;
-  
       const user = await User.findById(userID);
-  
       if (!user) {
         return res.status(404).json({ message: "User not found" });
       }
@@ -293,7 +285,7 @@ app.get("/users/:userID/followers", async (req, res) => {
     }
 });
 
-//endpoint to unfollow a user
+// Endpoint to unfollow a user
 app.post("/users/unfollow", async (req, res) => {
     const { loggedInUserID, unfollowUserID } = req.body;
     try {
@@ -309,7 +301,7 @@ app.post("/users/unfollow", async (req, res) => {
 }
 );
 
-//endpoint to create a new post
+// Endpoint to create a new post
 app.post("/newPost", async (req, res) => {
     const { destination, locations, userID } = req.body;
     try {
@@ -328,7 +320,7 @@ app.post("/newPost", async (req, res) => {
     }
 });
 
-//endpoint to get all posts
+// Endpoint to get all posts
 app.get("/posts", async (req, res) => {
     try {
 
@@ -344,7 +336,7 @@ app.get("/posts", async (req, res) => {
     }
 });
 
-//endpoint to get all posts uploaded by current logged in user
+// Endpoint to get all posts uploaded by current logged in user
 app.get("/posts/:userID", async (req, res) => {
     try {
         const { userID } = req.params;
@@ -360,26 +352,18 @@ app.get("/posts/:userID", async (req, res) => {
             .json({ message: "An error occurred while getting the posts" });
     }
 });
-//endpoint to save a post for logged in user
+// Endpoint to save a post for logged in user
 
 app.put("/posts/:postID/:userID/save", async (req, res) => {
     try {
-        console.log(`postID: ${req.params.postID}, userID: ${req.params.userID}`); // Log the postID and userID
-
         const post = await Post.findById(req.params.postID);
-        console.log('post:', post); // Log the post object
-
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
-
         if (post.user.toString() === req.params.userID) {
             return res.status(403).json({ message: "You cannot save your own post" });
         }
-
         const index = post.saved ? post.saved.findIndex(user => user.user.toString() === req.params.userID) : -1;
-        console.log('index:', index); // Log the index
-
         if (index === -1) {
             // The post is not saved yet, save it
             post.saved.push({ user: req.params.userID });
@@ -389,8 +373,6 @@ app.put("/posts/:postID/:userID/save", async (req, res) => {
         }
 
         await post.save();
-        console.log('post after save:', post); // Log the post object after saving
-
         res.status(200).json(post);
     } catch (error) {
         console.error('error:', error); // Log the error
@@ -414,13 +396,11 @@ app.get("/users/:userID/savedPosts", async (req, res) => {
     }
 });
 
-// endpoint for current logged in user profile
+// Endpoint for current logged in user profile
 
 app.get("/profile/:userID", async (req, res) => {
     try {
         const userID = req.params.userID;
-        console.log(`Received request to get profile for user ID: ${userID}`);
-
         const user = await User.findById(userID);
 
         if (!user) {
@@ -428,7 +408,6 @@ app.get("/profile/:userID", async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        console.log(`Returning profile for user ID: ${userID}`);
         return res.status(200).json({ user });
     } catch (error) {
         console.log(`Error while getting the profile: ${error}`);
@@ -436,18 +415,12 @@ app.get("/profile/:userID", async (req, res) => {
     }
 });
 
-// endpoint to delete a post
+// Endpoint to delete a post
 
 app.delete("/posts/:postID/:userID/delete", async (req, res) => {
     try {
       const { postID, userID } = req.params;
-  
-      console.log(`postID: ${postID}`);
-      console.log(`userID: ${userID}`);
-  
       const post = await Post.findOne({ _id: postID });
-  
-      console.log(`Found post: ${JSON.stringify(post)}`);
   
       if (!post) {
         return res.status(404).json({ message: "Post not found" });
@@ -466,7 +439,7 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
     }
   });
 
-  //endpoint to give a rating to a post
+  // Endpoint to give a rating to a post
   app.post("/posts/:postID/:userID/rate", async (req, res) => {
     try {
         const { postID, userID } = req.params;
@@ -498,7 +471,7 @@ app.delete("/posts/:postID/:userID/delete", async (req, res) => {
     }
 });
 
-//endpoint to get all ratings
+// Endpoint to get all ratings
 
 app.get("/ratings", async (req, res) => {
     try {
@@ -516,7 +489,7 @@ app.get("/ratings", async (req, res) => {
     }
 });
 
-//endpoint to get each post rating from the current user
+// Endpoint to get each post rating from the current user
 app.get("/posts/:postID/:userID/rating", async (req, res) => {
     try {
         const { postID, userID } = req.params;
@@ -544,7 +517,7 @@ app.get("/posts/:postID/:userID/rating", async (req, res) => {
     }
 });
 
-//endpoint to comment on a post
+//Endpoint to comment on a post
 
 app.post("/posts/:postID/:userID/comment", async (req, res) => {
     try {
@@ -572,7 +545,6 @@ app.post("/posts/:postID/:userID/comment", async (req, res) => {
 app.get('/posts/:postID/comments', async (req, res) => {
     try {
         const postID = req.params.postID;
-        console.log(`Fetching comments for post with ID: ${postID}`);
         const post = await Post.findById(postID).populate('comments.user');
 
         if (!post) {

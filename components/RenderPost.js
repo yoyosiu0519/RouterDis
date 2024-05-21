@@ -23,8 +23,6 @@ import {
 } from "./../components/Styles";
 
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
-
-
 const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, deletePost }) => {
     const [activeSections, setActiveSections] = useState([]);
     const [isReviewing, setIsReviewing] = useState(false);
@@ -33,6 +31,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
         setActiveSections(activeSections.includes(0) ? [] : [0]);
     };
 
+    // Get hours since post was created
     const getHoursSince = (dateString) => {
         const postDate = new Date(dateString);
         const currentDate = new Date();
@@ -41,6 +40,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
         return differenceInHours;
     };
 
+    // Calculate average rating
     const [userRating, setUserRating] = useState(null);
     const [initialRating, setInitialRating] = useState(0);
     const rating = useMemo(() => {
@@ -61,6 +61,7 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
         return average;
     }, [post, userRating]);
 
+    // Handle rating
     const validRating = !isNaN(rating) && isFinite(rating) ? rating : 0;
     const handleRate = async (rating) => {
         setUserRating(rating);
@@ -76,12 +77,12 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
         setIsReviewing(prevIsReviewing => !prevIsReviewing);
     };
 
+    // Handle comment
     const handleComment = async (comment) => {
         try {
             const response = await axios.post(`http://${API_URL}/posts/${post._id}/${userID}/comment`, {
                 text: comment,
             });
-            console.log('Comment saved successfully:', response.data);
             setComments(prevComments => [...prevComments, response.data.comment]);
         } catch (error) {
             console.log('Error commenting on post:', error);
@@ -96,7 +97,6 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                     sections={[post]}
                     onChange={toggleSection}
                     touchableProps={{ underlayColor: 'transparent' }}
-
                     renderHeader={post => (
                         <View>
                             <TextRow>
@@ -106,8 +106,6 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                         imageSize={20}
                                         readonly
                                         startingValue={validRating}
-                                        ratingColor={Colors.red}
-
                                         style={{ paddingVertical: 10 }}
                                     />
                                     {activeSections.includes(0) ? (
@@ -123,11 +121,9 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                             </TextRow>
                         </View>
                     )}
-
                     renderContent={post => (
                         <Pressable activeOpacity={1} onPress={toggleSection}>
                             <RenderLocations locations={post.locations} />
-
                             {post.user._id !== userID && (
                             <View>
                                 <Ionicons
@@ -139,10 +135,9 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                 />
                                      <Comments postID={post._id} userID={userID} />
                                 <StyledPostButton onPress={handleWriteReview}>
-                                    <ButtonText>{isReviewing ? 'Hide' : 'Write a Review'}</ButtonText>
+                                    <ButtonText>{isReviewing ? 'Hide' : 'Give a Review'}</ButtonText>
                                 </StyledPostButton>
                                 {isReviewing && <RatingInput onRate={handleRate} onComment={handleComment} initialRating={initialRating} />}                           
-                            
                             </View>
                         )}
                             {showDeleteButton && (
@@ -150,8 +145,6 @@ const RenderPost = ({ post, savedPosts, savePost, userID, showDeleteButton, dele
                                     <ButtonText>Delete Post</ButtonText>
                                 </StyledButton>
                             )}
-
-
                         </Pressable>
                     )}
                 />

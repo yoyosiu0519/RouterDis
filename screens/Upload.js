@@ -21,7 +21,6 @@ const Upload = () => {
         <Pressable onPress={() => navigation.navigate('Home')}>
           <DeleteLocationText>Go to Home</DeleteLocationText>
         </Pressable>
-  
       </InnerContainer>
     </StyledContainer>
 

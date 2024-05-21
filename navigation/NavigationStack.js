@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet} from 'react-native'
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
@@ -41,10 +41,8 @@ const NavigationStack = () => {
               tabBarLabelStyle: { color: Colors.navy },
               headerShown: false,
               tabBarIcon: ({ focused }) => focused ? (
-                // <Ionicons name="home" size={24} color={Colors.black}/>
                 <Ionicons name="home" size={24} color={Colors.navy} />
               ) : (
-                //<Ionicons name="home-outline" size={24} color={Colors.darkPurple} />
                 <Ionicons name="home-outline" size={24} color={Colors.navy} />
               ),
 
@@ -61,10 +59,8 @@ const NavigationStack = () => {
               tabBarLabelStyle: { color: Colors.navy },
               headerShown: false,
               tabBarIcon: ({ focused }) => focused ? (
-                //<Ionicons name="bookmark" size={24} color={Colors.black} />
                 <Ionicons name="bookmark" size={24} color={Colors.navy} />
               ) : (
-                // <Ionicons name="bookmark-outline" size={24} color={Colors.darkPurple} />
                 <Ionicons name="bookmark-outline" size={24} color={Colors.navy} />
               ),
             }
@@ -80,10 +76,8 @@ const NavigationStack = () => {
               tabBarLabelStyle: { color: Colors.navy },
               headerShown: false,
               tabBarIcon: ({ focused }) => focused ? (
-                //<Ionicons name="add-circle" size={24} color={Colors.black} />
                 <Ionicons name="add-circle" size={24} color={Colors.navy} />
               ) : (
-                //<Ionicons name="add-circle-outline" size={24} color={Colors.darkPurple}/>
                 <Ionicons name="add-circle-outline" size={24} color={Colors.navy} />
 
               ),
@@ -100,16 +94,11 @@ const NavigationStack = () => {
               tabBarLabelStyle: { color: Colors.navy },
               headerShown: false,
               tabBarIcon: ({ focused }) => focused ? (
-                //<FontAwesome5 name="user-alt" size={24} color={Colors.black}/>
                 <FontAwesome5 name="user-alt" size={24} color={Colors.navy} />
-
               ) : (
-                //<FontAwesome5 name="user" size={24} color={Colors.darkPurple} />
                 <FontAwesome5 name="user" size={24} color={Colors.navy} />
-
               ),
             }
-
           }
         />
       </Tab.Navigator>
@@ -145,11 +134,8 @@ const NavigationStack = () => {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-
     </NavigationContainer>
   )
 }
 
 export default NavigationStack
-
-const styles = StyleSheet.create({})

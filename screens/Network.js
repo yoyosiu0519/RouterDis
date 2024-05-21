@@ -1,13 +1,11 @@
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
+import {View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
 import React, { useState, useEffect, useContext } from 'react'
 import { AntDesign } from '@expo/vector-icons';
 import KeyboardAvoid from '../components/KeyboardAvoid';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
-import { jwtDecode } from 'jwt-decode';
 import 'core-js/stable/atob';
 import axios from 'axios';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation} from '@react-navigation/native';
 import { UserType } from '../UserContext';
 
 import {
@@ -34,7 +32,7 @@ const Network = () => {
   const [followingUsers, setFollowingUsers] = useState([]);
   const [followers, setFollowers] = useState([]);
 
-
+// Handle the selected button
   const handleSelectedButton = (button) => {
     setSelctedButton(button);
     if (button === 'people') {
@@ -45,23 +43,25 @@ const Network = () => {
       fetchFollowers();
     }
   }
+
+  // Handle follow 
   const handleFollow = (loggedInUserID, followUserID) => {
     axios.post(`http://${API_URL}/follow`, {
       loggedInUserID,
       followUserID
     }).then((response) => {
-      console.log(response.data.message); // "User followed successfully"
       setUsers(users => users.filter(user => user._id !== followUserID));
     }).catch((error) => {
       console.log(error.response.data.message); // "Unable to follow user"
     });
   }
+
+  // Handle unfollow
   const handleUnfollow = (loggedInUserID, unfollowUserID) => {
     axios.post(`http://${API_URL}/users/unfollow`, {
       loggedInUserID,
       unfollowUserID
     }).then((response) => {
-      console.log(response.data.message); // "User unfollowed successfully"
       setUsers(users => users.filter(user => user._id !== unfollowUserID));
       setFollowingUsers(followingUsers => followingUsers.filter(user => user._id !== unfollowUserID));
     }).catch((error) => {
@@ -69,9 +69,9 @@ const Network = () => {
     });
   }
 
+  // Fetch people
   const fetchPeople = async () => {
     axios.get(`http://${API_URL}/user/${userID}`).then((response) => {
-      console.log("Server response:", response.data);
       const otherUsers = response.data.users.filter(user => user._id !== userID);
       setUsers(otherUsers);
       setFollowers(otherUsers.filter(user => user.followers.includes(userID)));
@@ -80,6 +80,7 @@ const Network = () => {
     });
   };
 
+  // Fetch following users
   const fetchFollowingUsers = async () => {
     try {
       const response = await axios.get(`http://${API_URL}/users/${userID}/following`);
@@ -89,6 +90,7 @@ const Network = () => {
     }
   };
 
+  // Fetch followers
   const fetchFollowers = async () => {
     try {
       const response = await axios.get(`http://${API_URL}/users/${userID}/followers`);

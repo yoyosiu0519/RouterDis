@@ -1,9 +1,6 @@
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
-import React, { useState, useEffect, useContext, useCallback } from 'react'
-import Accordion from 'react-native-collapsible/Accordion';
-import { FontAwesome } from '@expo/vector-icons';
+import { View, SafeAreaView, ScrollView, Platform } from 'react-native'
+import React, { useState, useContext, useCallback } from 'react'
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
 import KeyboardAvoid from '../components/KeyboardAvoid';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
@@ -36,9 +33,9 @@ const Home = () => {
   const [savedPosts, setSavedPosts] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Fetch and decode user ID from token
   useFocusEffect(
     useCallback(() => {
-      // Fetch and decode user ID
       const fetchPeople = async () => {
         const token = await AsyncStorage.getItem('userToken');
         const decodedToken = jwtDecode(token);
@@ -58,19 +55,18 @@ const Home = () => {
         }
       };
       fetchPosts();
-
-      // Reset the active sections
       setActiveSections([]);
 
       return () => { };
     }, [savedPosts])
   );
+
+  // Fetch saved posts
   useFocusEffect(
     useCallback(() => {
       const fetchSavedPosts = async () => {
         try {
           const response = await axios.get(`http://${API_URL}/users/${userID}/savedPosts`);
-          console.log('response.data:', response.data);
           const savedPosts = response.data.savedPosts.reduce((acc, post) => ({ ...acc, [post._id]: true }), {});
           setSavedPosts(savedPosts);
         } catch (error) {
@@ -87,33 +83,21 @@ const Home = () => {
 
   // Filter the posts based on the search term when rendering them
   const filteredPosts = posts.filter(post => post.destination && post.destination.toLowerCase().includes(searchTerm.toLowerCase()));
-  
+
+  // Save a post
   const savePost = async (postID, userID) => {
     try {
       const response = await axios.put(`http://${API_URL}/posts/${postID}/${userID}/save`);
-      console.log('savePost response:', response.data);
       setSavedPosts(prevState => ({
         ...prevState,
         [postID]: response.data.saved.findIndex(user => user.user.toString() === userID) !== -1,
       }));
     } catch (error) {
       console.error('Failed to save post:', error);
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        console.log('Home screen: ', error.response.data);
-        console.log('Home screen: ', error.response.status);
-        console.log('Home screen: ', error.response.headers);
-      } else if (error.request) {
-        console.log('Home screen: ', error.request);
-      } else {
-        console.log('Error', error.message);
-      }
-      console.log('Home screen: ', error.config);
     }
   };
 
-
+  // Toggle the section of the post
   const toggleSection = index => {
     setActiveSections(activeSections.includes(index) ? activeSections.filter(i => i !== index) : [...activeSections, index]);
   };

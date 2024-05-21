@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View, SafeAreaView, ScrollView, Pressable, Platform } from 'react-native'
-import React, { useState, useEffect, useContext } from 'react'
+import { SafeAreaView, ScrollView, Pressable, Platform, Alert } from 'react-native'
+import React, { useState,useContext } from 'react'
 import { Entypo } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
@@ -8,11 +8,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import 'core-js/stable/atob';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
 import { UserType } from '../UserContext';
 import { Ionicons } from '@expo/vector-icons';
 import KeyboardAvoid from '../components/KeyboardAvoid';
-
 import {
   Colors,
   StyledContainer,
@@ -34,28 +32,27 @@ const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 const Post = ({ navigation }) => {
   const [destination, setDestination] = useState("");
   const [locations, setLocations] = useState([{ day: '', name: '', from: '', to: '', description: '', transport: '', duration: '', image: '' }]);
-
   const { userID } = useContext(UserType);
 
-
+// Handle post
   const handlePost = () => {
     const post = {
       userID,
       destination,
       locations
     };
-
     axios.post(`http://${API_URL}/newPost`, post)
       .then((response) => {
-        console.log(response.data.message); // "Post created successfully"
         setDestination("");
         setLocations([{ day: '', name: '', from: '', to: '', description: '', transport: '', duration: '', image: '' }]);
         navigation.navigate('Upload');
       })
       .catch((error) => {
+        Alert.alert("Post failed", "Please check all fields are filled correctly. Day input field must be a number.");
         console.log(error.response.data.message); // "Unable to create post"
       });
   };
+  
   const handleLocationChange = (index, field, value) => {
     setLocations(locations => locations.map((location, i) => i === index ? { ...location, [field]: value } : location));
   };
@@ -86,10 +83,7 @@ const Post = ({ navigation }) => {
                   placeholder="Destination"
                   value={destination}
                   onChangeText={setDestination} />
-
               </DestinationContainer>
-
-
               {locations.map((location, index) => (
                 <LocationContainer key={index}>
                   <TextRow>
@@ -138,7 +132,6 @@ const Post = ({ navigation }) => {
                       multiline={true}
                       numberOfLines={4}
                       style={{ alignSelf: 'flex-start', textAlignVertical: 'top' }}
-
                     />
                   </TextRow>
                   <TextRow>
@@ -159,22 +152,18 @@ const Post = ({ navigation }) => {
                       onChangeText={(value) => handleLocationChange(index, 'duration', value)}
                     />
                   </TextRow>
-
                   <Pressable onPress={() => handleDeleteLocation(index)}>
                     <DeleteLocationText>Delete Location</DeleteLocationText>
                   </Pressable>
                 </LocationContainer>
               ))}
             </PostContainer>
-
             <StyledPostButton onPress={addLocation}>
               <ButtonText>Add Location</ButtonText>
             </StyledPostButton>
-
             <StyledPostButton onPress={handlePost}>
               <ButtonText>Post</ButtonText>
             </StyledPostButton>
-            
           </ScrollView>
         </SafeAreaView>
       </StyledContainer>

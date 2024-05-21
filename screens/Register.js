@@ -1,5 +1,5 @@
 import { StyleSheet, SafeAreaView, Pressable, Platform, Alert } from 'react-native'
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
@@ -18,7 +18,6 @@ import {
   StyledButton,
   ButtonText,
   PressableText
-
 } from "./../components/Styles";
 
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
@@ -29,6 +28,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigation = useNavigation();
 
+  // Handle user register
   const handleRegister = () => {
     if (!firstname || !surname || !email || !password) {
       Alert.alert("Missing fields", "All fields must be filled in.");
@@ -41,8 +41,6 @@ const Login = () => {
       password: password
     }
     axios.post(`http://${API_URL}/register`, user).then((response) => {
-      console.log(`Status code: ${response.status}`);
-      console.log(`Server message: ${response.data.message}`);
       Alert.alert("Verify your email address", "Account has been created successfully, please check your email inbox .");
       setFirstname("");
       setSurname("");

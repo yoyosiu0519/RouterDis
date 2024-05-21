@@ -1,10 +1,8 @@
-import { StyleSheet, Text, View, Image, Alert, Platform, SafeAreaView, ScrollView } from "react-native";
+import { StyleSheet, View, Alert, Platform, SafeAreaView, ScrollView } from "react-native";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Accordion from 'react-native-collapsible/Accordion';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { Table, Row } from 'react-native-table-component';
 import { API_URL_ANDROID, API_URL_IOS } from '../config';
 import Post from '../components/RenderPost';
 import { UserType } from '../UserContext';
@@ -25,6 +23,7 @@ import {
   TextRow,
   WhiteInputField
 } from "./../components/Styles";
+
 const API_URL = Platform.OS === 'ios' ? API_URL_IOS : API_URL_ANDROID;
 const Profile = () => {
   const navigation = useNavigation();
@@ -49,7 +48,6 @@ const Profile = () => {
       navigation.navigate('Login');
       setUserID('');
       setPosts([]);
-      console.log('Logged out');
     } catch (error) {
       console.error('Failed to logout:', error);
     }
@@ -59,7 +57,7 @@ const Profile = () => {
   const deletePost = async (postID, userID) => {
     try {
       await axios.delete(`http://${API_URL}/posts/${postID}/${userID}/delete`);
-      setPosts(posts.filter(post => post._id !== postID)); 
+      setPosts(posts.filter(post => post._id !== postID));
     } catch (error) {
       console.error('Failed to delete post:', error);
     }
@@ -75,7 +73,7 @@ const Profile = () => {
         userBio
       });
 
-      setUser(response.data.user); // Update the user state with the updated user
+      setUser(response.data.user);
     } catch (error) {
       console.error('Failed to update user details:', error);
     }
@@ -102,19 +100,20 @@ const Profile = () => {
     } catch (error) {
       console.error('Failed to update password:', error);
       if (error.response) {
-          if (error.response.status === 401) {
-              Alert.alert('Old password is incorrect');
-          } else if (error.response.data && error.response.data.message) {
-              Alert.alert(error.response.data.message);
-          } else {
-              Alert.alert('Failed to update password');
-          }
-      } else {
+        if (error.response.status === 401) {
+          Alert.alert('Old password is incorrect');
+        } else if (error.response.data && error.response.data.message) {
+          Alert.alert(error.response.data.message);
+        } else {
           Alert.alert('Failed to update password');
+        }
+      } else {
+        Alert.alert('Failed to update password');
       }
     }
   };
 
+  // Fetch user details
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -124,12 +123,12 @@ const Profile = () => {
         console.error('Failed to fetch user:', error);
       }
     };
-
     if (userID) {
       fetchUser();
     }
   }, [userID]);
 
+  // Fetch user posts
   useFocusEffect(
     React.useCallback(() => {
       const fetchPosts = async () => {
@@ -144,21 +143,10 @@ const Profile = () => {
       if (userID) {
         fetchPosts();
       }
-
-
-      return () => setActiveSections([]); // Optional: clear posts when screen goes out of focus
+      return () => setActiveSections([]);
     }, [userID])
   );
 
-  useEffect(() => {
-    if (user) {
-      console.log('User:', user);
-    }
-    if (posts) {
-      console.log('Posts:', posts);
-    }
-    console.log('UserID:', userID);
-  }, [user]);
   return (
     <StyledContainer>
       <InnerContainer>
@@ -169,7 +157,6 @@ const Profile = () => {
                 <AppName style={{ marginBottom: 5 }}>{user.firstname} {user.surname}</AppName>
                 <PressableText>{user.userBio}</PressableText>
               </View>
-
             )}
             <NetworkButtonContainer>
               <SmallButton onPress={() => setSelectedButton('myPosts')} style={selectedButton === 'myPosts' ? styles.selectedButton : null}>
@@ -177,14 +164,12 @@ const Profile = () => {
                   My Posts
                 </ColorButtonText>
               </SmallButton>
-
               <SmallButton onPress={() => setSelectedButton('editProfile')} style={selectedButton === 'editProfile' ? styles.selectedButton : null}>
                 <ColorButtonText style={selectedButton === 'editProfile' ? styles.selectedButton : null}>
                   Edit my profile
                 </ColorButtonText>
               </SmallButton>
             </NetworkButtonContainer>
-
             {selectedButton === 'myPosts' && (
               <PostContainer>
                 <PostTitle>My Posts</PostTitle>
@@ -204,7 +189,6 @@ const Profile = () => {
                 ))}
               </PostContainer>
             )}
-
             {selectedButton === 'editProfile' && (
               <PostContainer>
                 <PostTitle>My Profile</PostTitle>
@@ -240,11 +224,9 @@ const Profile = () => {
                     placeholder={user.userBio}
                   />
                 </TextRow>
-
                 <StyledButton onPress={updateUserDetails}>
                   <ButtonText>Update Profile</ButtonText>
                 </StyledButton>
-
                 <StyledButton onPress={() => setShowPasswordFields(!showPasswordFields)}>
                   <ButtonText>{showPasswordFields ? 'Hide' : 'Change Password'}</ButtonText>
                 </StyledButton>
@@ -277,18 +259,13 @@ const Profile = () => {
                         secureTextEntry
                       />
                     </TextRow>
-
                     <StyledButton onPress={updateUserPassword}>
                       <ButtonText>Change Password</ButtonText>
                     </StyledButton>
                   </View>
                 )}
-
-
               </PostContainer>
             )}
-
-
             <StyledButton onPress={logout} style={{ backgroundColor: Colors.red }}>
               <ButtonText >
                 Logout
@@ -298,6 +275,7 @@ const Profile = () => {
         </SafeAreaView>
       </InnerContainer>
     </StyledContainer>
+    
   )
 }
 
